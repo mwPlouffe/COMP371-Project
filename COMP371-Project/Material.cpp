@@ -13,7 +13,7 @@ Material::Material(void)
 	ambient   = Colour(0.0f);
 	diffuse   = Colour(0.0f);
 	specular  = Colour(0.0f);
-	shininess = 1.f;
+	shininess = 1.0;
 }
 Material::Material(Colour ambi, Colour diff, Colour spec, float shiny)
 {
@@ -25,22 +25,15 @@ Material::Material(Colour ambi, Colour diff, Colour spec, float shiny)
 Vector Material::reflect(const Vector& v, const Vector& n) const
 {
 	//reflects the vector about the provided normal
-	return v - (2.0 * glm::dot(n,v) * n);
+	return (2.0 * glm::dot(n,v) * n) - v;
 }
 Colour Material::calculate_colour(const Vector& view, const Vector& normal, const Vector& light_direction, const Colour& light_colour) const
 {
 	//returns the colour of the light of the material, given the normal of the surface, the view direction and the light & colour
 	//uses phong lighting to accomplish this
-	Vector reflection = glm::normalize(reflect(-1.0 * light_direction,normal));
+	Vector reflection = glm::normalize(reflect(light_direction,normal));
 	
-	Colour ret = light_colour * (
-								 (std::max(0.0, glm::dot(normal, light_direction)) * this->diffuse) +
-								 (pow(std::max(0.0, (double) glm::dot(view, reflection)), this->shininess) * this->specular) //+
-								 //this->ambient
-								 );
-	//glm::clamp(ret.r, 0.0, 1.0);
-	//glm::clamp(ret.g, 0.0, 1.0);
-	//glm::clamp(ret.b, 0.0, 1.0);
-	
-	return ret;
+	return glm::clamp(light_colour * ((std::max(0.0, glm::dot(normal, light_direction)) * this->diffuse) //+
+						    + ((pow(std::max(0.0, (double) glm::dot(view, reflection)), this->shininess)) * this->specular)
+							), 0.0, 1.0);
 }

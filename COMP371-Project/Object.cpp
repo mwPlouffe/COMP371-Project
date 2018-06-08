@@ -28,3 +28,4 @@ Colour Object::surface_colour(const Point& intersect, const Light& l, const Poin
 {
 	return material.calculate_colour(glm::normalize(intersect - cameraPos), normal_at(intersect), glm::normalize(intersect - l.location()), l.light_colour());
 }
+

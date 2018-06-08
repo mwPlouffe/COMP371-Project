@@ -60,7 +60,6 @@
 		6E998F2020C0C83500821E1A /* COMP371-Project */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "COMP371-Project"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E998F2320C0C83500821E1A /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		6E998F2A20C0C86900821E1A /* Object.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Object.h; sourceTree = "<group>"; };
-		6E998F2B20C0C90000821E1A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		6ED164AF20C5D48D00BA9AB8 /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Object.cpp; sourceTree = "<group>"; };
 		6ED164B220C5D54D00BA9AB8 /* Ray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ray.cpp; sourceTree = "<group>"; };
 		6ED164B420C5D55D00BA9AB8 /* Light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Light.cpp; sourceTree = "<group>"; };
@@ -180,7 +179,6 @@
 		6E998F1720C0C83500821E1A = {
 			isa = PBXGroup;
 			children = (
-				6E998F2B20C0C90000821E1A /* OpenGL.framework */,
 				6E998F2220C0C83500821E1A /* COMP371-Project */,
 				6E998F2120C0C83500821E1A /* Products */,
 			);

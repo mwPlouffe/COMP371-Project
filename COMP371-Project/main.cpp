@@ -12,7 +12,7 @@ using namespace cimg_library;
 int main(void)
 {
 	std::map<std::string,Entity*> entities;
-	CImg <float> *output_image;
+	CImg <double> *output_image;
 	std::cout << "MESSAGE: Loading entities from file" << std::endl;
 	try
 	{
@@ -35,7 +35,10 @@ int main(void)
 	c = dynamic_cast<Camera*>(entities.find("Camera")->second);
 	//1. determine image resolution
 	
-	output_image = new CImg<float>(static_cast<int>(c->image_width()), static_cast<int>(c->image_height()), 1, 4, 0);
+	output_image = new CImg<double>(static_cast<int>(c->image_width()), static_cast<int>(c->image_height()), 1, 4, 0);
+	
+	//set the depth channel to a large value!
+	output_image->get_shared_channel(3).fill(c->f_length());
 	std::cout << "Image Resolution: (w: " << output_image->width() << ", h: " << output_image->height() << ")" << std::endl;
 	
 	//a) strip out the objects and lights from the entity list
@@ -67,16 +70,18 @@ int main(void)
 	Vector direction;
 	Point pixel;
 	Ray r;
+	Colour colour;
+	Colour base;
 	for (int x = -1 * output_image->width()/2 ; x < output_image->width()/2; x++)
 	{
 		for (int y = -1 * output_image->height()/2; y < output_image->height()/2; y++)
 		{
 			//starts at the camera position and exists from t[0,inf[ along the vector dir, which is the direction from camera to pixel
 			//the pixel location is simply x,y,focal_length
-			direction = Point(x,y,c->f_length()) - c->location();
+			direction = c->location() - Point(x, y, c->f_length());
 			//std::cout << "Ray Direction: " << Utility::display(direction) << std::endl;
-			r = Ray(c->location(), -1.0 * direction);
-			pixel = Point(x + static_cast<int>(output_image->width()/2), y + static_cast<int>(output_image->height()/2), 0.0);
+			r = Ray(c->location(), direction);
+			pixel = Point(x + static_cast<int>(output_image->width()/2), y + static_cast<int>(output_image->height()/2), c->f_length());
 			
 			//3. determine if the ray intersects an object
 			std::vector<Object*>::iterator reciever;
@@ -87,64 +92,85 @@ int main(void)
 				{
 					Point inter = (*reciever)->intersection(r);
 					//std::cout << "Object-Ray Intersection: " << Utility::display(inter) << std::endl;
-					Ray sr;
-					std::vector<Light*>::iterator light;
-					//	a) cast a shadow ray from intersection to each light
-					//TODO: This is broken. pls fix me
-					for (light = lights.begin();  light != lights.end() ; light++)
+					
+					//4. a) if the object is closer to the camera than the currently stored depth, compute the colour
+					if (depth_test(*output_image, pixel, glm::distance(inter,c->location())) == true)
 					{
-						sr = Ray(inter, inter - (*light)->location());
+						set_depth(*output_image, pixel, glm::distance(inter,c->location()));
 						
-						std::vector<Object*>::iterator occluder;
-						//b) if there is no intersection, compute the pixel colour
-						bool isShadowed = false;
-						for (occluder = objects.begin(); occluder != objects.end(); occluder++)
+						//4. b) is the light going to the intersect obstructed by other objects in the scene?
+						std::vector<Light*>::iterator light;
+						Ray shadow_ray;
+						colour = Colour();
+						base = (*reciever)->ambient_colour();
+						for (light = lights.begin(); light != lights.end(); light++)
 						{
-							if ((*occluder)->intersects(sr) == true)
+							shadow_ray = Ray((*light)->location(),(*light)->location() - inter);
+							std::vector<Object*>::iterator occluder;
+							bool is_shadowed = false;
+							for (occluder = objects.begin(); occluder != objects.end(); occluder++)
 							{
-								isShadowed = true;
-								break;
+								if ((*occluder)->intersects(shadow_ray) && almost_equals((*occluder)->intersection(shadow_ray), inter) == false)
+								{
+									is_shadowed = true;
+									break;
+								}
+							}
+							if (is_shadowed == false)
+							{
+								colour +=  (*reciever)->surface_colour(inter, *(*light), c->location());
+							}
+							else
+							{
+								base = 0.85 * (base + Colour(0.0, 0.0, 0.01));
 							}
 						}
-						//TODO: use the 4th colour channel to store the nearest depth buffer
-						if (isShadowed == true)
-						{
-							//not in shadow, apply the full lighting model
-							Colour colour = 256.0 * ((*reciever)->surface_colour(inter, *(*light), c->location()));
-							//std::cout << "Output Colour: " << Utility::display(colour) << std::endl;
-							set_lighting(*output_image, colour, pixel);
-							colour = 256.0 * glm::clamp((*reciever)->ambient_colour() * (*light)->light_colour(), 0.0, 1.0);
-							add_lighting(*output_image, colour, pixel);
-						}
-						else
-						{
-							//is in shadow, apply ambient only
-							Colour colour = 256.0 * glm::clamp((*reciever)->ambient_colour() * (*light)->light_colour(), 0.0, 1.0);
-							set_lighting(*output_image, colour, pixel);
-							isShadowed = false;
-						}
+						colour = glm::clamp(base + colour, 0.0, 1.0);
+						colour *= std::numeric_limits<double>::max();
+						set_lighting(*output_image, colour, pixel);
 					}
 				}
+				
 			}
 		}
 		
 	}
+	output_image->normalize(0.0, 255.0);
 	std::cout << "MESSAGE: Rendering Complete. Saving To file: ./output.bmp" << std::endl;
 	output_image->save("./output.bmp");
 	std::cout << "MESSAGE: Saving Complete. Exiting.." << std::endl;
 	return 0;
 }
-void add_lighting(cimg_library::CImg<float>& image, const Colour& additive, const Point& pixel)
+void add_lighting(cimg_library::CImg<double>& image, const Colour& additive, const Point& pixel)
 {
-	image(pixel.x, pixel.y, 0, 0) +=additive.r;
-	image(pixel.x, pixel.y, 0, 1) +=additive.g;
-	image(pixel.x, pixel.y, 0, 2) +=additive.b;
-	image(pixel.x, pixel.y, 0, 3) =pixel.z;
+	image(pixel.x, pixel.y, 0, 0) += additive.r;
+	image(pixel.x, pixel.y, 0, 1) += additive.g;
+	image(pixel.x, pixel.y, 0, 2) += additive.b;
 }
-void set_lighting(cimg_library::CImg<float>& image, const Colour& base, const Point& pixel)
+void set_lighting(cimg_library::CImg<double>& image, const Colour& base, const Point& pixel)
 {
-	image(pixel.x, pixel.y, 0, 0) =base.r;
-	image(pixel.x, pixel.y, 0, 1) =base.g;
-	image(pixel.x, pixel.y, 0, 2) =base.b;
-	image(pixel.x, pixel.y, 0, 3) =pixel.z;
+	image(pixel.x, pixel.y, 0, 0) = base.r;
+	image(pixel.x, pixel.y, 0, 1) = base.g;
+	image(pixel.x, pixel.y, 0, 2) = base.b;
+}
+bool depth_test(const cimg_library::CImg<double>& image, const Point& pixel, double depth)
+{
+	//the object is closer is the depth test returns true, otherwise the object is farther and returns false
+	return (std::abs(depth) < std::abs(image(pixel.x, pixel.y, 0, 3))) ? true : false;
+}
+void set_depth(cimg_library::CImg<double>& image, const Point& pixel, double depth)
+{
+	image(pixel.x, pixel.y, 0, 3) = depth;
+}
+bool almost_equals(const Point& p, const Point& q)
+{
+	Point result = p - q;
+	result.x = std::abs(result.x);
+	result.y = std::abs(result.y);
+	result.z = std::abs(result.z);
+	
+	return (   (result.x < 0.0001)
+			&& (result.y < 0.0001)
+			&& (result.z < 0.0001)
+		   );
 }

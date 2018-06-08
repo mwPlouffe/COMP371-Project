@@ -26,7 +26,7 @@ class Object : public Entity
 	virtual ~Object(void)=default;
 	virtual bool intersects(const Ray& r);
 	virtual Point intersection(const Ray& r)=0;
-	virtual Colour surface_colour(const Point& p, const Light& l, const Point& cameraPos);
+	virtual Colour surface_colour(const Point& intersect, const Light& l, const Point& cameraPos);
 	virtual Vector normal_at(const Point& p)=0;
 	virtual inline std::string to_string(void)
 	{

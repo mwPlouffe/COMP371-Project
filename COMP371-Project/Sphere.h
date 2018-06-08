@@ -23,6 +23,8 @@ class Sphere : public Object
 	Sphere(const Point& p, double r, const Material& m);
 	virtual ~Sphere(void) = default;
 	virtual Point intersection(const Ray& r);
+	bool intersects(const Ray& r, bool is_furthest);
+	Point intersection(const Ray& r, bool is_furthest);
 	virtual Vector normal_at(const Point& p);
 	virtual inline std::string to_string(void)
 	{
