@@ -61,7 +61,7 @@ Point Sphere::intersection(const Ray& r, bool is_furthest)
 	}
 	else
 	{
-		return (root1 < root2) ? r.cast(root1) : r.cast(root2);
+		return ((root1 < root2) && is_furthest == false) ? r.cast(root1) : r.cast(root2);
 	}
 }
 Vector Sphere::normal_at(const Point& p)

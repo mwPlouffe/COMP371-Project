@@ -111,7 +111,7 @@ int main(void)
 							bool is_shadowed = false;
 							for (occluder = objects.begin(); occluder != objects.end(); occluder++)
 							{
-								if ((*occluder)->intersects(shadow_ray) && almost_equals((*occluder)->intersection(shadow_ray), inter) == false)
+								if ((*occluder)->intersects(shadow_ray) == true && almost_equals((*occluder)->intersection(shadow_ray), inter) == false)
 								{
 									is_shadowed = true;
 									break;
@@ -123,8 +123,9 @@ int main(void)
 							}
 							else
 							{
-								double frac = 0.9;
-								base = frac * ( frac * base + (1.0 - frac) * Colour(0.0, 0.0, 0.0001));
+								double frac = 0.99;
+								double dark = 0.7;
+								base = dark * ( frac * base + (1.0 - frac) * Colour(0.0, 0.0, 0.0001));
 							}
 						}
 						colour = glm::clamp(base + colour, 0.0, 1.0);
