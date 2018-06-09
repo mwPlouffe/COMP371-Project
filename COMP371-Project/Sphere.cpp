@@ -48,6 +48,11 @@ Point Sphere::intersection(const Ray& r, bool is_furthest)
 	double root1 = ((-1.0 * b) + sqrt(discriminant)) / (2.0 * a) + 0.00000000001;
 	double root2 = ((-1.0 * b) - sqrt(discriminant)) / (2.0 * a) + 0.00000000001;
 	
+	if (root1 < 0.0 || root2 < 0.0)
+	{
+		//std::cout << "WARNING: roots exist behind camera" << std::endl;
+		return (Point) NULL;
+	}
 	//if they are too close, they are probably a repeat root (tangent to the sphere)
 	if (std::abs(root1-root2) < std::numeric_limits<double>::epsilon())
 	{
@@ -56,15 +61,8 @@ Point Sphere::intersection(const Ray& r, bool is_furthest)
 	}
 	else
 	{
-		//std::cout << "MESSAGE: distinct real roots found" << std::endl;
+		return (root1 < root2) ? r.cast(root1) : r.cast(root2);
 	}
-	
-	//calculate the intersections
-	Point inter1 = r.cast(root1);
-	Point inter2 = r.cast(root2);
-	
-	//return the root closest to the viewers eye (2 roots indicate that the ray enters and leaves the object)
-	return ( (glm::distance(inter1, r.location()) > glm::distance(inter2, r.location())) && is_furthest == false ) ? inter2 : inter1;
 }
 Vector Sphere::normal_at(const Point& p)
 {

@@ -12,11 +12,12 @@ using namespace cimg_library;
 int main(void)
 {
 	std::map<std::string,Entity*> entities;
+	cimg::exception_mode(0);
 	CImg <double> *output_image;
 	std::cout << "MESSAGE: Loading entities from file" << std::endl;
 	try
 	{
-		Utility::load_entities(entities, "./scenes/scene1.txt");
+		Utility::load_entities(entities, "./scenes/scene5.txt");
 	}
 	catch (IOException &ex)
 	{
@@ -105,7 +106,7 @@ int main(void)
 						base = (*reciever)->ambient_colour();
 						for (light = lights.begin(); light != lights.end(); light++)
 						{
-							shadow_ray = Ray((*light)->location(),(*light)->location() - inter);
+							shadow_ray = Ray(inter,(*light)->location() - inter);
 							std::vector<Object*>::iterator occluder;
 							bool is_shadowed = false;
 							for (occluder = objects.begin(); occluder != objects.end(); occluder++)
@@ -122,7 +123,8 @@ int main(void)
 							}
 							else
 							{
-								base = 0.85 * (base + Colour(0.0, 0.0, 0.01));
+								double frac = 0.9;
+								base = frac * ( frac * base + (1.0 - frac) * Colour(0.0, 0.0, 0.0001));
 							}
 						}
 						colour = glm::clamp(base + colour, 0.0, 1.0);
