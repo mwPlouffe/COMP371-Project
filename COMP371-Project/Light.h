@@ -13,9 +13,8 @@
 
 class Light : public Entity
 {
-	private:
+	protected:
 	Colour colour;
-	
 	public:
 	Light(void);
 	Light(const Colour& c);

@@ -12,12 +12,11 @@ using namespace cimg_library;
 int main(void)
 {
 	std::map<std::string,Entity*> entities;
-	cimg::exception_mode(0);
 	CImg <double> *output_image;
 	std::cout << "MESSAGE: Loading entities from file" << std::endl;
 	try
 	{
-		Utility::load_entities(entities, "./scenes/scene5.txt");
+		Utility::load_entities(entities, "./scenes/scene1.txt");
 	}
 	catch (IOException &ex)
 	{
@@ -61,15 +60,24 @@ int main(void)
 		//if there is data still in the pointer, it is a light
 		if (dynamic_cast<Light*>(entity->second) !=  NULL)
 		{
+#ifndef AREA_LIGHTS
 			lights.push_back(dynamic_cast<Light*>(entity->second));
 			//cannot be a light and an object, start next iteration
 			continue;
+#else
+			std::vector<Light*> transfer = dynamic_cast<AreaLight*>(entity->second)->return_lights();
+			for (int i = 0; i < transfer.size(); i++)
+			{
+				lights.push_back(transfer[i]);
+			}
+#endif
 		}
 	}
 	//2. 'cast' a ray through each pixel to the scene
-	std::cout << "MESSAGE: Starting to Render Image" << std::endl;
+	std::cout << "MESSAGE: Starting to Render Image" << std::flush;
 	Vector direction;
 	Point pixel;
+	double pixels = output_image->width() * output_image->height();
 	Ray r;
 	Colour colour;
 	Colour base;
@@ -111,7 +119,7 @@ int main(void)
 							bool is_shadowed = false;
 							for (occluder = objects.begin(); occluder != objects.end(); occluder++)
 							{
-								if ((*occluder)->intersects(shadow_ray) == true && almost_equals((*occluder)->intersection(shadow_ray), inter) == false)
+								if ((*occluder)->intersects(shadow_ray) == true && Utility::almost_equals((*occluder)->intersection(shadow_ray), inter) == false)
 								{
 									is_shadowed = true;
 									break;
@@ -123,8 +131,8 @@ int main(void)
 							}
 							else
 							{
-								double frac = 0.99;
-								double dark = 0.7;
+								double frac = 0.7;
+								double dark = 0.5;
 								base = dark * ( frac * base + (1.0 - frac) * Colour(0.0, 0.0, 0.0001));
 							}
 						}
@@ -135,11 +143,14 @@ int main(void)
 				}
 				
 			}
+			if ((std::abs(x) + std::abs(y) * output_image->height()) % (static_cast<long>(pixels * 0.05)) == 0 )
+			{
+				std::cout << "." << std::flush;
+			}
 		}
-		
 	}
 	output_image->normalize(0.0, 255.0);
-	std::cout << "MESSAGE: Rendering Complete. Saving To file: ./output.bmp" << std::endl;
+	std::cout << "\nMESSAGE: Rendering Complete. Saving To file: ./output.bmp" << std::endl;
 	output_image->save("./output.bmp");
 	std::cout << "MESSAGE: Saving Complete. Exiting.." << std::endl;
 	return 0;
@@ -164,16 +175,4 @@ bool depth_test(const cimg_library::CImg<double>& image, const Point& pixel, dou
 void set_depth(cimg_library::CImg<double>& image, const Point& pixel, double depth)
 {
 	image(pixel.x, pixel.y, 0, 3) = depth;
-}
-bool almost_equals(const Point& p, const Point& q)
-{
-	Point result = p - q;
-	result.x = std::abs(result.x);
-	result.y = std::abs(result.y);
-	result.z = std::abs(result.z);
-	
-	return (   (result.x < 0.0001)
-			&& (result.y < 0.0001)
-			&& (result.z < 0.0001)
-		   );
 }

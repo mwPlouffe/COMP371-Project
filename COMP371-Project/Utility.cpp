@@ -100,6 +100,7 @@ void Utility::load_entities(std::map<std::string, Entity*>& entities, char* file
 			load_single_param(a, "a:", fp);
 			std::stringstream ss;
 			ss << "Camera";
+
 			entities[ss.str()] = new Camera(f,
 										  fov,
 										  a,
@@ -112,7 +113,11 @@ void Utility::load_entities(std::map<std::string, Entity*>& entities, char* file
 			load_light_colour_properties(light_colour, fp);
 			std::stringstream ss;
 			ss << "Light" << counter++;
+		#ifndef AREA_LIGHTS
 			entities[ss.str()] = new Light(light_colour, position);
+		#else
+			entities[ss.str()] = new AreaLight(light_colour, position, 30.0);
+		#endif
 		}
 		else
 		{
@@ -287,4 +292,16 @@ void Utility::load_vector_param(glm::dvec3& param, char* identifier, FILE *fp)
 		error << "Utility::load_entities | line 279 | The single parameter property " << id << " does not exist. Expected Identifier was: " << identifier;
 		throw IOException(error.str());
 	}
+}
+bool Utility::almost_equals(const Point& p, const Point& q)
+{
+	Point result = p - q;
+	result.x = std::abs(result.x);
+	result.y = std::abs(result.y);
+	result.z = std::abs(result.z);
+	
+	return (   (result.x < 0.0001)
+			&& (result.y < 0.0001)
+			&& (result.z < 0.0001)
+			);
 }

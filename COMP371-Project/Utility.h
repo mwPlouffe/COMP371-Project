@@ -12,9 +12,11 @@
 #include "Entity.h"
 #include "Sphere.h"
 #include "Light.h"
+#include "AreaLight.h"
 #include "Camera.h"
 #include "Plane.h"
 
+//#define AREA_LIGHTS 0
 
 #include <fstream>
 #include <sstream>
@@ -30,7 +32,7 @@ struct Utility
 		ss << "Vector: (" << vector.x << ", " << vector.y << ", " << vector.z << ")";
 		return ss.str();
 	}
-	
+	static bool almost_equals(const Point& p, const Point& q);
 	private:
 	static void load_light_properties(Colour& ambient, Colour& diffuse, Colour& specular, FILE *fp);
 	static void load_position_properties(Point& location, FILE *fp);
@@ -38,6 +40,9 @@ struct Utility
 	static void load_light_colour_properties(Colour& light_colour , FILE *fp);
 	static void load_single_param(double& param, char* identifier, FILE *fp);
 	static void load_vector_param(glm::dvec3& param, char* identifier, FILE *fp);
+	
+	
+
 
 };
 

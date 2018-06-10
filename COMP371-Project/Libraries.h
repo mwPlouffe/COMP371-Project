@@ -17,10 +17,12 @@
 #include <algorithm>
 #include <map>
 #include <sstream>
+#include <vector>
 
 //typedefs to make the code more readable
 typedef glm::dvec3 Colour;
 typedef glm::dvec3 Point;
 typedef glm::dvec3 Vector;
 
+#define PI 3.14159265358979323846  /* pi */
 #endif /* Libraries_h */
