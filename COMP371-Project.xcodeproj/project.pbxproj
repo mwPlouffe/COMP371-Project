@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		6E21466420CDCD84000F5973 /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6E21466320CDCD84000F5973 /* Image.cpp */; };
+		6E21466720CDE042000F5973 /* Scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6E21466620CDE042000F5973 /* Scene.cpp */; };
 		6E67B72E20C0F5BD0001CCCF /* Sphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6E67B72D20C0F5BD0001CCCF /* Sphere.cpp */; };
 		6E7053B620CB98F500D9314D /* AreaLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6E7053B520CB98F500D9314D /* AreaLight.cpp */; };
 		6E7FD52F20C5BAB500D04C20 /* Plane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6E7FD52E20C5BAB500D04C20 /* Plane.cpp */; };
@@ -37,6 +38,8 @@
 /* Begin PBXFileReference section */
 		6E21466220CDCB03000F5973 /* Image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Image.h; sourceTree = "<group>"; };
 		6E21466320CDCD84000F5973 /* Image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Image.cpp; sourceTree = "<group>"; };
+		6E21466520CDD7D3000F5973 /* Scene.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Scene.h; sourceTree = "<group>"; };
+		6E21466620CDE042000F5973 /* Scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Scene.cpp; sourceTree = "<group>"; };
 		6E2EEBA720C0CD8F00CA93F6 /* Material.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Material.h; sourceTree = "<group>"; };
 		6E2EEBAA20C0CF4A00CA93F6 /* Libraries.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Libraries.h; sourceTree = "<group>"; };
 		6E2EEBAC20C0D0F900CA93F6 /* Ray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ray.h; sourceTree = "<group>"; };
@@ -93,6 +96,7 @@
 				6E2EEBAE20C0D3BC00CA93F6 /* Utility.h */,
 				6E2EEBA720C0CD8F00CA93F6 /* Material.h */,
 				6E21466220CDCB03000F5973 /* Image.h */,
+				6E21466520CDD7D3000F5973 /* Scene.h */,
 			);
 			name = utility;
 			sourceTree = "<group>";
@@ -149,6 +153,7 @@
 				6ED164BA20C5D75C00BA9AB8 /* Utility.cpp */,
 				6ED164BC20C5E40400BA9AB8 /* Material.cpp */,
 				6E21466320CDCD84000F5973 /* Image.cpp */,
+				6E21466620CDE042000F5973 /* Scene.cpp */,
 			);
 			name = utillty;
 			sourceTree = "<group>";
@@ -298,6 +303,7 @@
 				6ED164B720C5D56F00BA9AB8 /* Camera.cpp in Sources */,
 				6E67B72E20C0F5BD0001CCCF /* Sphere.cpp in Sources */,
 				6ED164B320C5D54D00BA9AB8 /* Ray.cpp in Sources */,
+				6E21466720CDE042000F5973 /* Scene.cpp in Sources */,
 				6E8DDE0C20C75C46001DECE4 /* IOException.cpp in Sources */,
 				6ED164B020C5D48D00BA9AB8 /* Object.cpp in Sources */,
 				6ED164BD20C5E40400BA9AB8 /* Material.cpp in Sources */,

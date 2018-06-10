@@ -24,14 +24,15 @@ class Image
 	Image(const long& width, const long& height, const long& channels, const double& depth);
 	
 	void set_colour_at(const Point& pixel, const Colour& c);
+	void set_colour_at(const Point& pixel, const Colour& base_colour, const Colour& lighting_colour, const long& light_count);
 	void save_image_to_file(const std::string& filepath);
 	bool test_depth_at(const Point& pixel, const double& depth);
 	void set_depth_at(const Point& pixel, const double& depth);
-	inline double get_image_width(void) const
+	inline long get_image_width(void) const
 	{
 		return image_pixels.width();
 	}
-	inline double get_image_height(void) const
+	inline long get_image_height(void) const
 	{
 		return image_pixels.height();
 	}
