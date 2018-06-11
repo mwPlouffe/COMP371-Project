@@ -24,7 +24,7 @@ class Image
 	Image(const long& width, const long& height, const long& channels, const double& depth);
 	
 	void set_colour_at(const Point& pixel, const Colour& c);
-	void set_colour_at(const Point& pixel, const Colour& base_colour, const Colour& lighting_colour, const long& light_count);
+	void set_colour_at(const Point& pixel, const Colour& base_colour, const Colour& lighting_colour, const long& light_count, const long& light_bias_count);
 	void save_image_to_file(const std::string& filepath);
 	bool test_depth_at(const Point& pixel, const double& depth);
 	void set_depth_at(const Point& pixel, const double& depth);

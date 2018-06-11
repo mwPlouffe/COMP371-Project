@@ -14,8 +14,8 @@
 #include "Image.h"
 #include "Image.cpp"
 #include "Scene.h"
+#define MAX_RAYS 1
 
 #define cimg_display 0
-
 #include "CImg.h"
 #endif /* main_h */
