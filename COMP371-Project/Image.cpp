@@ -58,7 +58,7 @@ void Image<T>::set_colour_at(const Point& pixel, const Colour& base_colour, cons
 	//1. create an unbiased summation between the base and lighting colours, using the number of lights
 	Colour pixel_colour = (GLOBAL_INTENSITY * lighting_colour + base_colour);
 	//2. now compute the square average of the colours in the pixel
-	pixel_colour /= (ray_count);
+	pixel_colour /= (ray_count + GLOBAL_INTENSITY);
 	pixel_colour.r = sqrt(pixel_colour.x);
 	pixel_colour.g = sqrt(pixel_colour.y);
 	pixel_colour.b = sqrt(pixel_colour.z);

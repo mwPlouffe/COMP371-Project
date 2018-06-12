@@ -11,8 +11,8 @@
 
 #include "Libraries.h"
 
-#define GAMMA 0.9
-#define GLOBAL_INTENSITY 3.0
+#define GAMMA 1.0
+#define GLOBAL_INTENSITY 1.0
 #define IMAGE_RICHNESS 256.0
 
 #define cimg_display 0
@@ -41,10 +41,15 @@ class Image
 	{
 		return image_pixels.height();
 	}
+	inline long size(void) const
+	{
+		return image_pixels.size();
+	}
 	void anti_alias(int radius);
 	
 	void normalise(double max_value);
 };
 
+typedef Image<double> Image_d;
 
 #endif /* Image_h */

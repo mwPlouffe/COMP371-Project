@@ -11,6 +11,7 @@
 
 #include "Libraries.h"
 #include "Utility.h"
+#include "Image.h"
 
 class Scene
 {
@@ -24,14 +25,13 @@ class Scene
 	Scene(const char* filepath);
 	
 	void construct(const char* filepath);
-	inline Camera scene_camera(void)
+	inline Camera scene_camera(void) const
 	{
 		return camera;
 	}
 	private:
 	void load_entities_from_file(const char* filepath, std::map<std::string, Entity*>& entities);
 	void parse_entities(std::map<std::string, Entity*> entities);
-	
 };
 
 
