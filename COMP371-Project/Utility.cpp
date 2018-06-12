@@ -305,3 +305,13 @@ bool Utility::almost_equals(const Point& p, const Point& q)
 			&& (result.z < 0.0001)
 			);
 }
+glm::dvec3 Utility::pow(const glm::dvec3& vec, double power)
+{
+	glm::dvec3 vec1(0.0);
+
+	vec1.x = powl(vec.x, power);
+	vec1.y = powl(vec.y, power);
+	vec1.z = powl(vec.z, power);
+	
+	return vec1;
+}

@@ -11,6 +11,7 @@ using namespace cimg_library;
 
 int main(void)
 {
+	std::cout << "MESSAGE:" << renderer_settings() << std::endl;
 	Scene *scene = new Scene();
 	std::cout << "MESSAGE: Loading entities from file" << std::endl;
 	try
@@ -26,7 +27,8 @@ int main(void)
 	Image<double>* output_image = new Image<double>(static_cast<long>(scene->scene_camera().image_width()), static_cast<long>(scene->scene_camera().image_height()), 4, scene->scene_camera().f_length());
 	
 	//2. 'cast' a ray through each pixel to the scene
-	std::cout << "MESSAGE: Starting to Render Image" << std::flush;
+	std::cout << "MESSAGE: Starting to Render Image" << std::endl;
+	std::cout << "MESSAGE: Rendering in Progress" << std::flush;
 	Vector direction;
 	Point pixel;
 	double pixels = output_image->get_image_width() * output_image->get_image_height();
@@ -37,9 +39,17 @@ int main(void)
 	{
 		for (int y = -1 * output_image->get_image_height()/2; y < output_image->get_image_height()/2; y++)
 		{
+			Colour aggregate_colour_base(0.0);
+			Colour aggregate_colour_light(0.0);
+			for (int i = 0; i < MAX_RAYS; i++)
+			{
+				int x_noise = NOISE_RANGE * (std::rand()/ RAND_MAX - 0.5);
+				int y_noise = NOISE_RANGE * (std::rand()/ RAND_MAX - 0.5);
+				colour  = Colour(0.0);
+				base	= Colour(0.0);
 				//starts at the camera position and exists from t[0,inf[ along the vector dir, which is the direction from camera to pixel
 				//the pixel location is simply x,y,focal_length
-				direction = scene->scene_camera().location() - Point(x, y, scene->scene_camera().f_length());
+				direction = scene->scene_camera().location() - Point(x + x_noise, y + y_noise, scene->scene_camera().f_length());
 				//std::cout << "Ray Direction: " << Utility::display(direction) << std::endl;
 				r = Ray(scene->scene_camera().location(), direction);
 				pixel = Point(x + static_cast<int>(output_image->get_image_width()/2), y + static_cast<int>(output_image->get_image_height()/2), scene->scene_camera().f_length());
@@ -79,19 +89,22 @@ int main(void)
 								}
 								if (is_shadowed == false)
 								{
-									colour +=  (*reciever)->surface_colour(inter, *(*light), scene->scene_camera().location());
+									colour  += Utility::pow(((*reciever)->surface_colour(inter, *(*light), scene->scene_camera().location())), 2.0);
+									base	+= Utility::pow(base * (*light)->light_colour(), 2.0);
 								}
 								else
 								{
-									double frac = 0.8;
-									double dark = 0.9;
-									base = dark * ( frac * base + (1.0 - frac) * Colour(0.0, 0.0, 0.01));
+									base	+=  Utility::pow(((1.0 - DARK_FRAC) * ( BASE_FRAC * (*reciever)->ambient_colour() + (1.0 - BASE_FRAC) * Colour(0.0, 0.0, 1.0))), 2);
 								}
 							}
-							output_image->set_colour_at(pixel, base, colour, 1, 1);
+							
 						}
 					}
+				}
+				aggregate_colour_base += base;
+				aggregate_colour_light+= colour;
 			}
+			output_image->set_colour_at(pixel, aggregate_colour_base, aggregate_colour_light, MAX_RAYS);
 			
 			if ((std::abs(x) + std::abs(y) * output_image->get_image_height()) % (static_cast<long>(pixels * 0.05)) == 0 )
 			{
@@ -99,12 +112,16 @@ int main(void)
 			}
 		}
 	}
-	std::cout << "\nMESSAGE: Rendering Complete. Saving To file: ./output.bmp" << std::endl;
+	std::cout << "\nMESSAGE: Starting to apply Post-Rendering MSAA to image" <<std::endl;
+	output_image->anti_alias(SAMPLE_RADIUS);
+	output_image->normalise(std::numeric_limits<double>::max());
+	std::cout << "\nMESSAGE: Post-Rendering MSAA complete." <<std::endl;
+	std::cout << "MESSAGE: Rendering Complete. Saving To file: ./results/output.bmp" << std::endl;
 	try
 	{
-		output_image->save_image_to_file("./output.bmp");
+		output_image->save_image_to_file("./results/output.bmp");
 		int status1 = system("open -a /Applications/Preview.app ./scenes/scene5.bmp");
-		int status  = system("open -a /Applications/Preview.app ./output.bmp");
+		int status  = system("open -a /Applications/Preview.app ./results/output.bmp");
 		
 		if (status == -1 || status1 == -1)
 		{
@@ -124,4 +141,15 @@ int main(void)
 	std::cout << "MESSAGE: Execution Successful. Exiting.." << std::endl;
 	
 	return 0;
+}
+
+std::string renderer_settings(void)
+{
+	std::stringstream ss;
+	ss  << "Current Image settings" << "\n--------------------"
+		<< "\n\tImage Gamma: " << GAMMA
+		<< "\n\tLight Brightness: " << BASE_LIGHT_INTENSITY
+		<< "\nShadow Settings" << "\n\tDarkness: " << DARK_FRAC << "\n\tBase Colour Fraction: " << BASE_FRAC << "\n\tLighting Intensity Factor: " << GLOBAL_INTENSITY
+		<< "\nAnti-Aliasing Settings" << "\n\tSamples per pixel: " << MAX_RAYS << "\n\tSampling Noise:" << NOISE_RANGE <<"\n\tMSAA Radius: " << SAMPLE_RADIUS << "\n--------------------";
+	return ss.str();
 }

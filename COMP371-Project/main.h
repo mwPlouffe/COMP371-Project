@@ -14,8 +14,15 @@
 #include "Image.h"
 #include "Image.cpp"
 #include "Scene.h"
-#define MAX_RAYS 1
+
+#define MAX_RAYS 16
+#define SAMPLE_RADIUS 1
+#define DARK_FRAC 0.7
+#define BASE_FRAC 0.4
+#define NOISE_RANGE 1.0
 
 #define cimg_display 0
+
+std::string renderer_settings(void);
 #include "CImg.h"
 #endif /* main_h */

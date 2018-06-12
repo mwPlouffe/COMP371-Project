@@ -7,6 +7,7 @@
 //
 
 #include "Image.h"
+#include "Utility.h"
 using namespace cimg_library;
 
 template <class T>
@@ -50,15 +51,14 @@ void Image<T>::set_colour_at(const Point& pixel, const Colour& c)
 	image_pixels(pixel.x, pixel.y, 0, 2) = c.b;
 }
 template <class T>
-void Image<T>::set_colour_at(const Point& pixel, const Colour& base_colour, const Colour& lighting_colour, const long& light_count, const long& light_bias_count)
+void Image<T>::set_colour_at(const Point& pixel, const Colour& base_colour, const Colour& lighting_colour, const long& ray_count)
 {
 	//https://medium.com/@kevinsimper/how-to-average-rgb-colors-together-6cd3ef1ff1e5
 	//need to take a better average between colours
 	//1. create an unbiased summation between the base and lighting colours, using the number of lights
-	Colour pixel_colour = (lighting_colour + base_colour * ((double)light_count));
+	Colour pixel_colour = (GLOBAL_INTENSITY * lighting_colour + base_colour);
 	//2. now compute the square average of the colours in the pixel
-	pixel_colour *= pixel_colour;
-	pixel_colour /= (light_count);
+	pixel_colour /= (ray_count);
 	pixel_colour.r = sqrt(pixel_colour.x);
 	pixel_colour.g = sqrt(pixel_colour.y);
 	pixel_colour.b = sqrt(pixel_colour.z);
@@ -67,10 +67,12 @@ void Image<T>::set_colour_at(const Point& pixel, const Colour& base_colour, cons
 	
 	//https://stackoverflow.com/questions/16521003/gamma-correction-formula-gamma-or-1-gamma?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
 	//4. apply a gamma correction
-	pixel_colour.r = pow(pixel_colour.r, 2.2);
-	pixel_colour.g = pow(pixel_colour.g, 2.2);
-	pixel_colour.b = pow(pixel_colour.b, 2.2);
-	pixel_colour *= std::numeric_limits<double>::max();
+#ifdef GAMMA
+	pixel_colour.r = pow(pixel_colour.r, GAMMA);
+	pixel_colour.g = pow(pixel_colour.g, GAMMA);
+	pixel_colour.b = pow(pixel_colour.b, GAMMA);
+#endif
+	
 	//5. set the pixel colour
 	this->set_colour_at(pixel, pixel_colour);
 }
@@ -78,11 +80,14 @@ template <class T>
 void Image<T>::save_image_to_file(const std::string& filepath)
 {
 	std::cout << "MESSAGE: Normalising image to RGB-256" << std::endl;
-	image_pixels.normalize(0.0, 255.0);
+	image_pixels.normalize(0.0, IMAGE_RICHNESS - 1.0);
+	image_pixels.mirror("x");
+	const char* fp = filepath.c_str();
 	try
 	{
-		image_pixels.save("./output.bmp");
-	} catch (CImgException &ex)
+		image_pixels.save(fp);
+	}
+	catch (CImgException &ex)
 	{
 		std::cout << ex.what() << std::endl;
 		return;
@@ -99,3 +104,67 @@ void Image<T>::set_depth_at(const Point& pixel, const double& depth)
 {
 	image_pixels(pixel.x, pixel.y, 0, 3) = depth;
 }
+template <class T>
+void  Image<T>::normalise(double max_value)
+{
+	
+	for (int x = 0; x < image_pixels.width(); x++)
+	{
+		for (int y = 0; y < image_pixels.height(); y++)
+		{
+			Point pixel(x, y, 0);
+			image_pixels(pixel.x, pixel.y, 0, 0) *= max_value;
+			image_pixels(pixel.x, pixel.y, 0, 1) *= max_value;
+			image_pixels(pixel.x, pixel.y, 0, 2) *= max_value;
+		}
+	}
+}
+template <class T>
+void Image<T>::anti_alias(int radius)
+{
+	if (radius < 1)
+	{
+		std::cout << "WARNING: cannot anti-alias on a radius of 0 or less" << std::endl;
+		return;
+	}
+	std::cout << "MESSAGE: Applying Post-Rendering MSAA" << std::flush;
+	CImg<double> sampler(this->image_pixels);
+	for (int x = radius; x < image_pixels.width() - radius; x++)
+	{
+		for (int y = radius; y < image_pixels.width() - radius; y++)
+		{
+			Colour aggregate(0.0);
+			for (int x_sample = -1 * radius; x_sample <= radius; x_sample++)
+			{
+				for (int y_sample = -1 * radius; y_sample <= radius; y_sample++)
+				{
+					aggregate.r += sampler(x + x_sample, y + y_sample, 0, 0) * sampler(x + x_sample, y + y_sample, 0, 0);
+					aggregate.g += sampler(x + x_sample, y + y_sample, 0, 1) * sampler(x + x_sample, y + y_sample, 0, 1);
+					aggregate.b += sampler(x + x_sample, y + y_sample, 0, 2) * sampler(x + x_sample, y + y_sample, 0, 2);
+				}
+			}
+			aggregate /= static_cast<double>((radius + 1) * (radius + 1));
+			aggregate.r = sqrt(aggregate.r);
+			aggregate.g = sqrt(aggregate.g);
+			aggregate.b = sqrt(aggregate.b);
+			
+			aggregate = glm::clamp(aggregate, 0.0, 1.0);
+#ifdef GAMMA
+			aggregate.r = pow(aggregate.r, GAMMA);
+			aggregate.g = pow(aggregate.g, GAMMA);
+			aggregate.b = pow(aggregate.b, GAMMA);
+#endif
+			this->set_colour_at(Point(x ,y, 0), aggregate);
+			if ((std::abs(x) + std::abs(y) * image_pixels.width()) % (static_cast<long>(image_pixels.size() * 0.05)) == 0 )
+			{
+				std::cout << "." << std::flush;
+			}
+		}
+	}
+}
+
+
+
+
+
+

@@ -12,6 +12,7 @@
 #include "Libraries.h"
 #include "Light.h"
 
+#define BASE_LIGHT_INTENSITY 4.0
 
 class Material
 {

@@ -33,6 +33,7 @@ struct Utility
 		return ss.str();
 	}
 	static bool almost_equals(const Point& p, const Point& q);
+	static glm::dvec3 pow(const glm::dvec3& vec, double power);
 	private:
 	static void load_light_properties(Colour& ambient, Colour& diffuse, Colour& specular, FILE *fp);
 	static void load_position_properties(Point& location, FILE *fp);
