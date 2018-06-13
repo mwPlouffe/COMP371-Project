@@ -18,11 +18,12 @@
 #define cimg_display 0
 
 #define THREAD_MAX 8
-#define MAX_RAYS 32
-#define SAMPLE_RADIUS 1
-#define DARK_FRAC 0.7
-#define BASE_FRAC 0.4
-#define NOISE_RANGE 1.0
+#define MAX_RAYS 9
+//#define SAMPLE_RADIUS 1
+#define NOISE_RANGE 0.0
+//#define BASE_FRAC 0.9
+
+//#define DARK_FRAC 0.9
 
 #include <thread>
 #include <mutex>

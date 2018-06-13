@@ -31,7 +31,7 @@ Point Sphere::intersection(const Ray& r, bool is_furthest)
 {
 	//calculate the a,b,c constants for the quadratic equation (they all boil down to some form of dot product between the ray direction, the ray position, and/or the sphere centre)
 	double a = glm::dot(r.vector(),r.vector());
-	double b = glm::dot(2.0 * r.vector(), r.location() - this->position);
+	double b = 2.0 * glm::dot(r.vector(), r.location() - this->position);
 	double c = glm::dot(r.location() - this->position, r.location() - this->position) - radius * radius;
 	
 	//then the discriminant

@@ -11,9 +11,9 @@
 
 #include "Libraries.h"
 
-#define GAMMA 1.0
-#define GLOBAL_INTENSITY 1.0
+#define GAMMA 2.2
 #define IMAGE_RICHNESS 256.0
+#define GLOBAL_IMAGE_INTENSITY 1.0
 
 #define cimg_display 0
 #include "CImg.h"
@@ -30,6 +30,7 @@ class Image
 	
 	void set_colour_at(const Point& pixel, const Colour& c);
 	void set_colour_at(const Point& pixel, const Colour& base_colour, const Colour& lighting_colour, const long& ray_count);
+	void set_colour_at(const Point& pixel, const Colour& colour, const long& ray_count);
 	void save_image_to_file(const std::string& filepath);
 	bool test_depth_at(const Point& pixel, const double& depth);
 	void set_depth_at(const Point& pixel, const double& depth);
@@ -45,8 +46,7 @@ class Image
 	{
 		return image_pixels.size();
 	}
-	void anti_alias(int radius);
-	
+	void anti_alias(int radius);	
 	void normalise(double max_value);
 };
 

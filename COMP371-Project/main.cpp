@@ -25,7 +25,6 @@ int main(void)
 		return -1;
 	}
 	Image<double>* output_image = new Image<double>(static_cast<long>(scene->scene_camera().image_width()), static_cast<long>(scene->scene_camera().image_height()), 4, scene->scene_camera().f_length());
-	
 	std::mutex m;
 	std::vector<std::thread*> threads;
 	int x_min = 0;
@@ -62,11 +61,13 @@ int main(void)
 				(*thread)->join();
 			}
 		}
-	
+#ifdef SAMPLE_RADIUS
 	std::cout << "MESSAGE: Starting to apply Post-Rendering MSAA to image" <<std::endl;
 	output_image->anti_alias(SAMPLE_RADIUS);
-	output_image->normalise(std::numeric_limits<double>::max());
 	std::cout << "\nMESSAGE: Post-Rendering MSAA complete." <<std::endl;
+#endif
+	output_image->normalise(std::numeric_limits<double>::max());
+	
 	std::cout << "MESSAGE: Rendering Complete. Saving To file: ./results/output.bmp" << std::endl;
 	try
 	{
@@ -97,24 +98,37 @@ int main(void)
 std::string renderer_settings(void)
 {
 	std::stringstream ss;
-	ss  << "Current Image settings" << "\n--------------------"
-	<< "\n\tImage Gamma: " << GAMMA
-	<< "\n\tLight Brightness: " << BASE_LIGHT_INTENSITY
-	<< "\nShadow Settings" << "\n\tDarkness: " << DARK_FRAC << "\n\tBase Colour Fraction: " << BASE_FRAC << "\n\tLighting Intensity Factor: " << GLOBAL_INTENSITY
-	<< "\nAnti-Aliasing Settings" << "\n\tSamples per pixel: " << MAX_RAYS << "\n\tSampling Noise:" << NOISE_RANGE <<"\n\tMSAA Radius: " << SAMPLE_RADIUS << "\n--------------------";
+	ss  << "Current Image settings" << "\n--------------------";
+	
+#ifdef GAMMA
+	ss << "\n\tImage Gamma: " << GAMMA;
+#endif
+#ifdef BASE_LIGHT_INTENSITY
+	ss << "\n\tLight Brightness: " << BASE_LIGHT_INTENSITY;
+#endif
+	ss << "\nShadow Settings";
+#ifdef DARK_FRAC
+	ss << "\n\tDarkness: " << DARK_FRAC;
+#endif
+#ifdef BASE_FRAC
+	ss << "\n\tBase Colour Fraction: " << BASE_FRAC;
+#endif
+	ss << "\n\tLighting Intensity Factor: " << GLOBAL_INTENSITY << "\nAnti-Aliasing Settings" << "\n\tSamples per pixel: " << MAX_RAYS;
+#ifdef SAMPLE_RADIUS
+	ss << "\n\tSampling Noise:" << NOISE_RANGE <<"\n\tMSAA Radius: " << SAMPLE_RADIUS;
+#endif
+	ss << "\n--------------------";
 	return ss.str();
 }
 template <class T>
 void render_range(Image<T>& image, const Scene& scene, const Point& pixel_start, const Point& pixel_end, const std::string identifier, std::mutex& m)
 {
 	m.lock();
-	std::cout << "MESSAGE: Starting to Render Image on Thread: " << identifier << std::endl;
-	std::cout << "MESSAGE: Rendering in Progress on Thread: " << identifier << std::endl;
+	std::cout << "MESSAGE: Starting to Render Image on " << identifier << std::endl;
+	std::cout << "MESSAGE: Rendering in Progress on " << identifier << std::endl;
 	m.unlock();
 	Point start(pixel_start.x - static_cast<int>(image.get_image_width() / 2.0), pixel_start.y - static_cast<int>(image.get_image_height() / 2.0), 0.0);
 	Point end(pixel_end.x - static_cast<int>(image.get_image_width() / 2.0), pixel_end.y - static_cast<int>(image.get_image_height() / 2.0), 0.0);
-	//std::cout << identifier << "|start: " << Utility::display(start) << std::endl;
-	//std::cout << identifier << "|end: "<< Utility::display(end) << std::endl;
 	Vector direction;
 	Point pixel;
 	Ray r;
@@ -159,8 +173,8 @@ void render_range(Image<T>& image, const Scene& scene, const Point& pixel_start,
 							//4. b) is the light going to the intersect obstructed by other objects in the scene?
 							std::vector<Light*>::const_iterator light;
 							Ray shadow_ray;
-							base = (*receiver)->ambient_colour();
 							colour = Colour();
+							base = Colour();
 							for (light = scene.lights.begin(); light != scene.lights.end(); light++)
 							{
 								shadow_ray = Ray(inter,(*light)->location() - inter);
@@ -176,26 +190,29 @@ void render_range(Image<T>& image, const Scene& scene, const Point& pixel_start,
 								}
 								if (is_shadowed == false)
 								{
-									colour  += Utility::pow(((*receiver)->surface_colour(inter, *(*light), scene.scene_camera().location())), 2.0);
-									//base	+= Utility::pow(base * (*light)->light_colour(), 2.0);
+									Colour temp = (*receiver)->surface_colour(inter, *(*light), scene.scene_camera().location());
+									colour += temp;
+									temp = (*receiver)->ambient_colour();
+									base += temp ;
 								}
 								else
 								{
-									//base	+=  Utility::pow(((1.0 - DARK_FRAC) * ( BASE_FRAC * (*receiver)->ambient_colour() + (1.0 - BASE_FRAC) * Colour(0.0, 0.0, 1.0))), 2);
+									Colour temp = ((*receiver)->ambient_colour() * (*light)->light_colour());
+									base += temp ;
 								}
+								
 							}
-							
 						}
 					}
 				}
-				aggregate_colour_base += base;
-				aggregate_colour_light+= colour;
+				aggregate_colour_light	+= colour;
+				aggregate_colour_base	+= base;
 			}
-			image.set_colour_at(pixel, aggregate_colour_base, aggregate_colour_light, MAX_RAYS);
+			image.set_colour_at(pixel, aggregate_colour_light + aggregate_colour_base, MAX_RAYS);
 		}
 	}
 	m.lock();
-	std::cout << "MESSAGE: Rendering Complete on Thread: " << identifier << std::endl;
+	std::cout << "MESSAGE: Rendering Complete on " << identifier << std::endl;
 	m.unlock();
 	return;
 }

@@ -213,8 +213,8 @@
 				6E3C94CF20C876DD00E2758D /* scenes */,
 				6E2EEBB220C0E8A100CA93F6 /* src */,
 				6E2EEBB120C0E86D00CA93F6 /* include */,
-				6E998F2320C0C83500821E1A /* main.cpp */,
 				6E8DDE0D20C76641001DECE4 /* main.h */,
+				6E998F2320C0C83500821E1A /* main.cpp */,
 			);
 			path = "COMP371-Project";
 			sourceTree = "<group>";

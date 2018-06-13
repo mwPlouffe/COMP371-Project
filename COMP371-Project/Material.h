@@ -12,7 +12,7 @@
 #include "Libraries.h"
 #include "Light.h"
 
-#define BASE_LIGHT_INTENSITY 1.0
+#define GLOBAL_INTENSITY 1.0
 
 class Material
 {

@@ -33,7 +33,8 @@ Point Plane::intersection(const Ray& r)
 	}
 	
 	//calculate the real root
-	double root  = ((glm::dot(this->normal, this->location()) - glm::dot(this->normal, r.location())) / discriminant) + 0.00000001;
+	//the value of d is calculated through taking the dot of the normal and the origin of the ray
+	double root  = ((glm::dot(this->normal, this->location()) - glm::dot(this->normal, r.location())) / discriminant) - 0.000001;
 
 	//check if it's behind the camera
 	if (root < 0.0)
