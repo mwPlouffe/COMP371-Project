@@ -300,9 +300,9 @@ bool Utility::almost_equals(const Point& p, const Point& q)
 	result.y = std::abs(result.y);
 	result.z = std::abs(result.z);
 	
-	return (   (result.x < 0.0001)
-			&& (result.y < 0.0001)
-			&& (result.z < 0.0001)
+	return (   (result.x < 0.001)
+			&& (result.y < 0.001)
+			&& (result.z < 0.001)
 			);
 }
 glm::dvec3 Utility::pow(const glm::dvec3& vec, double power)

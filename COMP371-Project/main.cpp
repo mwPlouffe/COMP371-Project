@@ -124,7 +124,6 @@ template <class T>
 void render_range(Image<T>& image, const Scene& scene, const Point& pixel_start, const Point& pixel_end, const std::string identifier, std::mutex& m)
 {
 	m.lock();
-	std::cout << "MESSAGE: Starting to Render Image on " << identifier << std::endl;
 	std::cout << "MESSAGE: Rendering in Progress on " << identifier << std::endl;
 	m.unlock();
 	Point start(pixel_start.x - static_cast<int>(image.get_image_width() / 2.0), pixel_start.y - static_cast<int>(image.get_image_height() / 2.0), 0.0);
@@ -132,20 +131,18 @@ void render_range(Image<T>& image, const Scene& scene, const Point& pixel_start,
 	Vector direction;
 	Point pixel;
 	Ray r;
-	Colour colour;
-	Colour base;
 	for (int x = start.x; x < end.x; x++)
 	{
 		for (int y = start.y; y < end.y; y++)
 		{
-			Colour aggregate_colour_base(0.0);
-			Colour aggregate_colour_light(0.0);
+			Colour ray_aggregate_colour(0.0);
+			Colour ray_aggregate_base(0.0);
 			for (int i = 0; i < MAX_RAYS; i++)
 			{
-				int x_noise = NOISE_RANGE * (std::rand()/ RAND_MAX - 0.5);
-				int y_noise = NOISE_RANGE * (std::rand()/ RAND_MAX - 0.5);
-				colour  = Colour(0.0);
-				base	= Colour(0.0);
+				int x_noise		= NOISE_RANGE * (std::rand()/ RAND_MAX - 0.5);
+				int y_noise		= NOISE_RANGE * (std::rand()/ RAND_MAX - 0.5);
+				Colour colour   = Colour(0.0);
+				Colour base		= Colour(0.0);
 				//starts at the camera position and exists from t[0,inf[ along the vector dir, which is the direction from camera to pixel
 				//the pixel location is simply x,y,focal_length
 				direction = scene.scene_camera().location() - Point(x + x_noise, y + y_noise, scene.scene_camera().f_length());
@@ -173,8 +170,7 @@ void render_range(Image<T>& image, const Scene& scene, const Point& pixel_start,
 							//4. b) is the light going to the intersect obstructed by other objects in the scene?
 							std::vector<Light*>::const_iterator light;
 							Ray shadow_ray;
-							colour = Colour();
-							base = Colour();
+							colour = Colour(0.0);
 							for (light = scene.lights.begin(); light != scene.lights.end(); light++)
 							{
 								shadow_ray = Ray(inter,(*light)->location() - inter);
@@ -190,25 +186,20 @@ void render_range(Image<T>& image, const Scene& scene, const Point& pixel_start,
 								}
 								if (is_shadowed == false)
 								{
+									//light calculation here
 									Colour temp = (*receiver)->surface_colour(inter, *(*light), scene.scene_camera().location());
 									colour += temp;
-									temp = (*receiver)->ambient_colour();
-									base += temp ;
 								}
-								else
-								{
-									Colour temp = ((*receiver)->ambient_colour() * (*light)->light_colour());
-									base += temp ;
-								}
-								
 							}
 						}
 					}
 				}
-				aggregate_colour_light	+= colour;
-				aggregate_colour_base	+= base;
+				//colour aggregation here
+				ray_aggregate_colour += colour;
+
 			}
-			image.set_colour_at(pixel, aggregate_colour_light + aggregate_colour_base, MAX_RAYS);
+			//pixel colour here
+			image.set_colour_at(pixel, ray_aggregate_colour + ray_aggregate_base, MAX_RAYS);
 		}
 	}
 	m.lock();

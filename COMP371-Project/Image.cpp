@@ -143,7 +143,6 @@ void Image<T>::anti_alias(int radius)
 		for (int y = radius; y < image_pixels.height() - radius; y++)
 		{
 			Colour aggregate(0.0);
-			bool bugged = false;
 			for (int x_sample = -1 * radius; x_sample <= radius; x_sample++)
 			{
 				for (int y_sample = -1 * radius; y_sample <= radius; y_sample++)
@@ -151,12 +150,6 @@ void Image<T>::anti_alias(int radius)
 					aggregate.r += sampler(x + x_sample, y + y_sample, 0, 0);
 					aggregate.g += sampler(x + x_sample, y + y_sample, 0, 1);
 					aggregate.b += sampler(x + x_sample, y + y_sample, 0, 2);
-					if (aggregate.r > 100 || aggregate.g > 100 || aggregate.b > 100)
-					{
-						//	std::cout <<"Pixel : " << Utility::display(Point(x,y,0)) << std::endl;
-						//std::cout <<"Colour : " << Utility::display(aggregate) << std::endl;
-						bugged = true;
-					}
 				}
 			}
 #ifdef GAMMA 
@@ -166,11 +159,7 @@ void Image<T>::anti_alias(int radius)
 #endif
 			this->set_colour_at(Point(x ,y, 0), aggregate, (radius + 2) * (radius + 2));
 			
-			if (bugged)
-			{
-				//this->set_colour_at(Point(x ,y, 0), Colour(1.0, 0.0, 0.0));
-			}
-			if ((std::abs(x) + std::abs(y) * image_pixels.width()) % (static_cast<long>(image_pixels.size() * 0.05)) == 0 )
+						if ((std::abs(x) + std::abs(y) * image_pixels.width()) % (static_cast<long>(image_pixels.size() * 0.05)) == 0 )
 			{
 				std::cout << "." << std::flush;
 			}

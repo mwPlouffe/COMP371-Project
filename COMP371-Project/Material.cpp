@@ -33,8 +33,8 @@ Colour Material::calculate_colour(const Vector& view, const Vector& normal, cons
 	//uses phong lighting to accomplish this
 	Vector reflection = glm::normalize(reflect(light_direction,normal));
 	
-	//light colour darkens the result, therefore it is ignored, and actually applied to the shadow
-	return glm::clamp(( GLOBAL_INTENSITY * light_colour * (std::max(0.0, glm::dot(normal, light_direction) ) * this->diffuse) //+
-					   + ((pow(std::max(0.0, (double) glm::dot(view, reflection)), this->shininess)) * this->specular)
-									  ), 0.0, 1.0);
+	Colour diff = std::max(0.0, glm::dot(normal, light_direction) ) * this->diffuse;
+	Colour spec = pow( std::max(0.0, (double) glm::dot(view, reflection)), this->shininess ) * this->specular;
+	
+	return glm::clamp(this->ambient + (light_colour * GLOBAL_INTENSITY * (diff + spec)), 0.0, 1.0);
 }

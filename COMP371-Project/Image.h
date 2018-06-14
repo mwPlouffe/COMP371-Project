@@ -11,7 +11,7 @@
 
 #include "Libraries.h"
 
-#define GAMMA 2.2
+//#define GAMMA 1.0
 #define IMAGE_RICHNESS 256.0
 #define GLOBAL_IMAGE_INTENSITY 1.0
 
