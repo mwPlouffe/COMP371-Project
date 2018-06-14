@@ -15,16 +15,14 @@ class AreaLight : public Light
 {
 	//assumes that the position inherited from the entity class is the centre of a circle
 	protected:
-	double radius;									//the radius of the circle
-	double offset;									//the angle at which the light is offset by the radius
-	void calculate_light_number(long lights);		//computes the spacing between the lights from the number of lights
-	
+	double radius;									//the radius of the sphere
 	public:
 	
 	AreaLight(void);
-	AreaLight(const Point& p, const Colour& c, const double& offset);
+	AreaLight(const Point& p, const Colour& c);
+	AreaLight(const Point& p, const Colour& c, const double& r);
 	virtual ~AreaLight(void) = default;
-	std::vector<Light*> return_lights(void);
+	Point sample(void);
 };
 
 #endif /* AreaLight_h */

@@ -19,16 +19,14 @@ Sphere::Sphere(const Point& p, double r, const Material& m) : Object(p,m)
 {
 	radius = r;
 }
-bool Sphere::intersects(const Ray& r, bool is_furthest)
+Point Sphere::intersection(const Ray& r) const
 {
-	return ((intersection(r, is_furthest) != (Point) NULL) ? true : false);
-}
-Point Sphere::intersection(const Ray& r)
-{
-	return intersection(r, false);
-}
-Point Sphere::intersection(const Ray& r, bool is_furthest)
-{
+#ifdef cached
+	if (cache_intersect != (Point) NULL)
+	{
+		return cache_intersect;
+	}
+#endif
 	//calculate the a,b,c constants for the quadratic equation (they all boil down to some form of dot product between the ray direction, the ray position, and/or the sphere centre)
 	double a = glm::dot(r.vector(),r.vector());
 	double b = 2.0 * glm::dot(r.vector(), r.location() - this->position);
@@ -41,6 +39,10 @@ Point Sphere::intersection(const Ray& r, bool is_furthest)
 	if (discriminant < 0.0)
 	{
 		//std::cout << "WARNING: no real roots found" << std::endl;
+		#ifdef cached
+		cache_intersect = (Point) NULL;
+		return cache_intersect;
+		#endif
 		return (Point) NULL;
 	}
 	
@@ -51,20 +53,33 @@ Point Sphere::intersection(const Ray& r, bool is_furthest)
 	if (root1 < 0.0 || root2 < 0.0)
 	{
 		//std::cout << "WARNING: roots exist behind camera" << std::endl;
+#ifdef cached
+		cache_intersect = (Point) NULL;
+		return cache_intersect;
+#endif
 		return (Point) NULL;
 	}
 	//if they are too close, they are probably a repeat root (tangent to the sphere)
 	if (std::abs(root1-root2) < std::numeric_limits<double>::epsilon())
 	{
 		//std::cout << "MESSAGE: repeated roots found" << std::endl;
+#ifdef cached
+		cache_intersect = r.cast(root1);
+#endif
 		return r.cast(root1);
 	}
 	else
 	{
-		return ((root1 < root2) && is_furthest == false) ? r.cast(root1) : r.cast(root2);
+#ifdef cached
+		cache_intersect = ((root1 < root2)) ? r.cast(root1) : r.cast(root2);
+#endif
+		return ((root1 < root2)) ? r.cast(root1) : r.cast(root2);
 	}
+#ifdef cached
+	return cache_intersect;
+#endif
 }
-Vector Sphere::normal_at(const Point& p)
+Vector Sphere::normal_at(const Point& p) const
 {
 	return glm::normalize(this->position - p);
 }

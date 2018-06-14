@@ -8,29 +8,33 @@
 
 #include "AreaLight.h"
 
-AreaLight::AreaLight(void) : Light(Point(0.0),Colour(1.0))
+AreaLight::AreaLight(void) : Light(Point(0.0), Colour(1.0))
 {
-	//by defualt
-	this->radius	= 0.1;
-	this->offset	= 5.0;	//degrees
-	
+	radius = 0.0;
 }
-AreaLight::AreaLight(const Point& p, const Colour& c, const double& offset) : Light(p,c)
+AreaLight::AreaLight(const Point& p, const Colour& c) : Light(p,c)
 {
 	radius = 0.1;
-	this->offset = offset;
 }
-std::vector<Light*> AreaLight::return_lights(void)
+AreaLight::AreaLight(const Point& p, const Colour& c, const double& r) : Light(p,c)
 {
-	std::vector<Light*> ret;
+	radius = r;
+}
+Point AreaLight::sample(void)
+{
+	//samples a sphere in spherical coordinates to generate a point that lies within the radius of the sphere in all directions
 	
-	for (double angle = 0; angle < 360.0; angle+=offset)
-	{
-		ret.push_back(new Light(this->colour, Point(radius * cos(offset * PI / 180.0), radius * sin(offset * PI / 180.0),this->position.z)));
-	}
+	double r_sample		= radius *		(std::rand() / RAND_MAX);
+	double theta_sample = 1.0 * PI *	(std::rand() / RAND_MAX);
+	double phi_sample	= 2.0 * PI *	(std::rand() / RAND_MAX);
+	
+	//spherical to cartesian conversion
+	Point ret(r_sample * cos(theta_sample) * sin(phi_sample),
+			  r_sample * sin(theta_sample) * sin(phi_sample),
+			  r_sample * cos(phi_sample));
+	
+	//object space to world space conversion
+	ret += position;
+	
 	return ret;
-}
-void AreaLight::calculate_light_number(long lights)
-{
-	offset = 360.0 / lights;
 }

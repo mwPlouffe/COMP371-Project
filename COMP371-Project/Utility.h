@@ -23,6 +23,7 @@
 #include <regex>
 #include <string>
 
+
 struct Utility
 {
 	static void load_entities(std::map<std::string,Entity*>& entities, char* filepath);

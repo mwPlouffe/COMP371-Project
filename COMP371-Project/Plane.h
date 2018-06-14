@@ -21,8 +21,8 @@ class Plane : public Object
 	Plane(const Point& p, const Vector& n);
 	Plane(const Point& p, const Vector& n, const Material& m);
 	virtual ~Plane() = default;
-	virtual Point intersection(const Ray& r);
-	virtual inline std::string to_string(void)
+	virtual Point intersection(const Ray& r) const;
+	inline std::string to_string(void)
 	{
 		std::stringstream ss;
 		ss <<	"Plane Properties:\n" <<
@@ -30,7 +30,7 @@ class Plane : public Object
 		"\tNormal: (" << normal.x << ", " << normal.y << ", " << normal.z << ")";
 		return ss.str();
 	}
-	virtual Vector normal_at(const Point& p);
+	virtual Vector normal_at(const Point& p) const;
 };
 
 #endif /* Plane_h */

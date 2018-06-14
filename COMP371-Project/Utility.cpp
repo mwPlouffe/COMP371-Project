@@ -116,7 +116,7 @@ void Utility::load_entities(std::map<std::string, Entity*>& entities, char* file
 		#ifndef AREA_LIGHTS
 			entities[ss.str()] = new Light(light_colour, position);
 		#else
-			entities[ss.str()] = new AreaLight(light_colour, position, 30.0);
+			entities[ss.str()] = new AreaLight(light_colour, position, 1.0);
 		#endif
 		}
 		else

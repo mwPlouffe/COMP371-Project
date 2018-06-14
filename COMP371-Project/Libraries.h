@@ -25,4 +25,5 @@ typedef glm::dvec3 Point;
 typedef glm::dvec3 Vector;
 
 #define PI 3.14159265358979323846  /* pi */
+
 #endif /* Libraries_h */

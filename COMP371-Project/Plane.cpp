@@ -20,8 +20,14 @@ Plane::Plane(const Point& p, const Vector& n, const Material& m) : Object(p,m)
 {
 	normal = glm::normalize(n);
 }
-Point Plane::intersection(const Ray& r)
+Point Plane::intersection(const Ray& r) const
 {
+#ifdef cached
+	if (cache_intersect != (Point) NULL)
+	{
+		return cache_intersect;
+	}
+#endif
 	//calculate the discriminant
 	double discriminant = glm::dot(this->normal, r.vector());
 	
@@ -29,8 +35,11 @@ Point Plane::intersection(const Ray& r)
 	if (std::abs(discriminant) < std::numeric_limits<double>::epsilon())
 	{
 		//std::cout << "WARNING: no real roots found" << std::endl;
-		return (Point) NULL;
-	}
+#ifdef cached
+		cache_intersect = (Point) NULL;
+		return cache_intersect;
+#endif
+		return (Point) NULL;	}
 	
 	//calculate the real root
 	//the value of d is calculated through taking the dot of the normal and the origin of the ray
@@ -40,12 +49,20 @@ Point Plane::intersection(const Ray& r)
 	if (root < 0.0)
 	{
 		//std::cout << "WARNING: Intersection is behind the camera" << std::endl;
+#ifdef cached
+		cache_intersect = (Point) NULL;
+		return cache_intersect;
+#endif
 		return (Point) NULL;
 	}
 	//return the position at the specified root to the user
+#ifdef intersect
+	cache_intersect = r.cast(root);
+	return cache_intersect;
+#endif
 	return r.cast(root);
 }
-Vector Plane::normal_at(const Point& p)
+Vector Plane::normal_at(const Point& p) const
 {
 	return normal;
 }

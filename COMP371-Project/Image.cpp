@@ -64,9 +64,9 @@ void Image<T>::set_colour_at(const Point& pixel, const Colour& base_colour, cons
 	//https://medium.com/@kevinsimper/how-to-average-rgb-colors-together-6cd3ef1ff1e5
 	//need to take a better average between colours
 	//1. create an unbiased summation between the base and lighting colours, using the number of lights
-	Colour pixel_colour = (GLOBAL_IMAGE_INTENSITY * lighting_colour + base_colour);
+	Colour pixel_colour = (lighting_colour + base_colour);
 	//2. now compute the square average of the colours in the pixel
-	pixel_colour /= (ray_count + GLOBAL_IMAGE_INTENSITY + 1.0);
+	pixel_colour /= (ray_count);
 	pixel_colour.r = sqrt(pixel_colour.r);
 	pixel_colour.g = sqrt(pixel_colour.g);
 	pixel_colour.b = sqrt(pixel_colour.b);
@@ -87,7 +87,7 @@ void Image<T>::set_colour_at(const Point& pixel, const Colour& base_colour, cons
 template <class T>
 void Image<T>::save_image_to_file(const std::string& filepath)
 {
-	std::cout << "MESSAGE: Normalising image to RGB-256" << std::endl;
+	std::cout << "MESSAGE: Normalising image to RGB-"<< IMAGE_RICHNESS << std::endl;
 	image_pixels.normalize(0.0, IMAGE_RICHNESS - 1.0);
 	image_pixels.mirror("x");
 	const char* fp = filepath.c_str();
@@ -157,7 +157,7 @@ void Image<T>::anti_alias(int radius)
 			aggregate.g = pow(aggregate.g, GAMMA);
 			aggregate.b = pow(aggregate.b, GAMMA);
 #endif
-			this->set_colour_at(Point(x ,y, 0), aggregate, (radius + 2) * (radius + 2));
+			this->set_colour_at(Point(x ,y, 0), aggregate, Colour(0.0), (radius + 2) * (radius + 2));
 			
 						if ((std::abs(x) + std::abs(y) * image_pixels.width()) % (static_cast<long>(image_pixels.size() * 0.05)) == 0 )
 			{

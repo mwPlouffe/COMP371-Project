@@ -72,10 +72,9 @@ int main(void)
 	try
 	{
 		output_image->save_image_to_file("./results/output.bmp");
-		int status1 = system("open -a /Applications/Preview.app ./scenes/scene5.bmp");
 		int status  = system("open -a /Applications/Preview.app ./results/output.bmp");
 		
-		if (status == -1 || status1 == -1)
+		if (status == -1)
 		{
 			throw IOException("There was a problem opening the file.");
 		}
@@ -139,8 +138,8 @@ void render_range(Image<T>& image, const Scene& scene, const Point& pixel_start,
 			Colour ray_aggregate_base(0.0);
 			for (int i = 0; i < MAX_RAYS; i++)
 			{
-				int x_noise		= NOISE_RANGE * (std::rand()/ RAND_MAX - 0.5);
-				int y_noise		= NOISE_RANGE * (std::rand()/ RAND_MAX - 0.5);
+				double x_noise		= NOISE_RANGE * (std::rand()/ RAND_MAX - 0.5);
+				double y_noise		= NOISE_RANGE * (std::rand()/ RAND_MAX - 0.5);
 				Colour colour   = Colour(0.0);
 				Colour base		= Colour(0.0);
 				//starts at the camera position and exists from t[0,inf[ along the vector dir, which is the direction from camera to pixel
@@ -171,6 +170,7 @@ void render_range(Image<T>& image, const Scene& scene, const Point& pixel_start,
 							std::vector<Light*>::const_iterator light;
 							Ray shadow_ray;
 							colour = Colour(0.0);
+							base = (*receiver)->ambient_colour();
 							for (light = scene.lights.begin(); light != scene.lights.end(); light++)
 							{
 								shadow_ray = Ray(inter,(*light)->location() - inter);
@@ -180,6 +180,7 @@ void render_range(Image<T>& image, const Scene& scene, const Point& pixel_start,
 								{
 									if ((*occluder)->intersects(shadow_ray) == true && Utility::almost_equals((*occluder)->intersection(shadow_ray), inter) == false)
 									{
+										
 										is_shadowed = true;
 										break;
 									}
@@ -188,18 +189,24 @@ void render_range(Image<T>& image, const Scene& scene, const Point& pixel_start,
 								{
 									//light calculation here
 									Colour temp = (*receiver)->surface_colour(inter, *(*light), scene.scene_camera().location());
-									colour += temp;
+									colour += temp * temp;
+								}
+								else
+								{
+									Colour temp = (*receiver)->shadow_colour(*(*light));
+									base = temp * temp;
 								}
 							}
 						}
 					}
 				}
 				//colour aggregation here
-				ray_aggregate_colour += colour;
+				ray_aggregate_colour	+= colour;
+				ray_aggregate_base		+= base;
 
 			}
 			//pixel colour here
-			image.set_colour_at(pixel, ray_aggregate_colour + ray_aggregate_base, MAX_RAYS);
+			image.set_colour_at(pixel, ray_aggregate_colour, ray_aggregate_base, MAX_RAYS);
 		}
 	}
 	m.lock();

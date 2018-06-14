@@ -14,21 +14,26 @@
 #include "Material.h"
 #include "Light.h"
 
+//#define cached
+
 class Object : public Entity
 {
 	protected:
 	Material material;
-	
+#ifdef cached
+	Point cache_intersect;
+#endif
 	public:
 	Object(void);
 	Object(const Point& p);
 	Object(const Point& p, const Material& m);
 	virtual ~Object(void)=default;
-	virtual bool intersects(const Ray& r);
-	virtual Point intersection(const Ray& r)=0;
-	virtual Colour surface_colour(const Point& intersect, const Light& l, const Point& cameraPos);
-	virtual Vector normal_at(const Point& p)=0;
-	virtual inline std::string to_string(void)
+	virtual bool intersects(const Ray& r) const ;
+	virtual Point intersection(const Ray& r) const =0;
+	virtual Colour surface_colour(const Point& intersect, const Light& l, const Point& cameraPos) const;
+	Colour shadow_colour(const Light& l) const;
+	virtual Vector normal_at(const Point& p) const=0;
+	inline std::string to_string(void)
 	{
 		std::stringstream ss;
 		ss <<	"Object Properties:\n" <<
@@ -36,10 +41,22 @@ class Object : public Entity
 		"\t" << this->material.to_string();
 		return ss.str();
 	}
-	inline Colour ambient_colour(void)
+	inline Colour ambient_colour(void) const
 	{
 		return material.ambient_colour();
 	}
+#ifdef cached
+	inline Point cached_intersect(void)
+	{
+		Point ret = cache_intersect;
+		clear_cache();
+		return ret;
+	}
+	inline void clear_cache(void)
+	{
+		cache_intersect = (Point) NULL;
+	}
+#endif
 };
 
 

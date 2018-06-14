@@ -12,7 +12,7 @@
 #include "Libraries.h"
 #include "Light.h"
 
-#define GLOBAL_INTENSITY 1.0
+#define GLOBAL_INTENSITY 3.0
 
 class Material
 {
@@ -27,6 +27,7 @@ class Material
 	Material(void);
 	Material(Colour ambi, Colour diff, Colour spec, float shiny);
 	Colour calculate_colour(const Vector& view, const Vector& normal, const Vector& light_direction, const Colour& light_colour) const;
+	Colour calculate_shadow_colour(const Colour& light_colour) const;
 	inline std::string to_string(void)
 	{
 		std::stringstream ss;
@@ -37,7 +38,7 @@ class Material
 			  "\t\tShininess: " << shininess;
 		return ss.str();
 	}
-	inline Colour ambient_colour(void)
+	inline Colour ambient_colour(void) const
 	{
 		return ambient;
 	}
