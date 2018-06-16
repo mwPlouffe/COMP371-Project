@@ -17,7 +17,7 @@ int main(void)
 	try
 	{	//1. construct the scene from file
 		//1. a) strip out the objects and lights from the entity list
-		scene->construct("./scenes/scene5.txt");
+		scene->construct("./scenes/scene2.txt");
 	}
 	catch (IOException &ex)
 	{
@@ -31,8 +31,8 @@ int main(void)
 	int step = static_cast<int>(output_image->get_image_width() / (1.0 * THREAD_MAX));
 	for (int i = 0; i < THREAD_MAX; i++)
 	{
-		Point pixel_start	(x_min,			0, 0.0);
-		Point pixel_end		(x_min + step,  output_image->get_image_height(), 0.0);
+		Point pixel_start	(x_min,			0,									0.0);
+		Point pixel_end		(x_min + step,  output_image->get_image_height(),	0.0);
 		std::stringstream ss;
 		ss << "Thread: " << i;
 		std::string identifier(ss.str());
@@ -130,6 +130,7 @@ void render_range(Image<T>& image, const Scene& scene, const Point& pixel_start,
 	Vector direction;
 	Point pixel;
 	Ray r;
+	Tracer t(MAX_RAYS, NOISE_RANGE, scene, image);
 	for (int x = start.x; x < end.x; x++)
 	{
 		for (int y = start.y; y < end.y; y++)
@@ -138,8 +139,8 @@ void render_range(Image<T>& image, const Scene& scene, const Point& pixel_start,
 			Colour ray_aggregate_base(0.0);
 			for (int i = 0; i < MAX_RAYS; i++)
 			{
-				double x_noise		= NOISE_RANGE * (std::rand()/ RAND_MAX - 0.5);
-				double y_noise		= NOISE_RANGE * (std::rand()/ RAND_MAX - 0.5);
+				double x_noise		= NOISE_RANGE * (1.0 * std::rand()/ RAND_MAX - 0.5);
+				double y_noise		= NOISE_RANGE * (1.0 * std::rand()/ RAND_MAX - 0.5);
 				Colour colour   = Colour(0.0);
 				Colour base		= Colour(0.0);
 				//starts at the camera position and exists from t[0,inf[ along the vector dir, which is the direction from camera to pixel
@@ -152,58 +153,14 @@ void render_range(Image<T>& image, const Scene& scene, const Point& pixel_start,
 							  scene.scene_camera().f_length());
 				
 				//3. determine if the ray intersects an object
-				std::vector<Object*>::const_iterator receiver;
-				for (receiver = (scene.objects).begin(); receiver != scene.objects.end(); receiver++)
+				
+				for (std::vector<Object*>::const_iterator receiver = (scene.objects).begin(); receiver != scene.objects.end(); receiver++)
 				{
-					//4. if there is an intersection, determine if the surface is lit
-					if ((*receiver)->intersects(r))
-					{
-						Point inter = (*receiver)->intersection(r);
-						//std::cout << "Object-Ray Intersection: " << Utility::display(inter) << std::endl;
-						
-						//4. a) if the object is closer to the camera than the currently stored depth, compute the colour
-						if (image.test_depth_at(pixel, glm::distance(inter, scene.scene_camera().location())) == true)
-						{
-							image.set_depth_at(pixel, glm::distance(inter, scene.scene_camera().location()));
-							
-							//4. b) is the light going to the intersect obstructed by other objects in the scene?
-							std::vector<Light*>::const_iterator light;
-							Ray shadow_ray;
-							colour = Colour(0.0);
-							base = (*receiver)->ambient_colour();
-							for (light = scene.lights.begin(); light != scene.lights.end(); light++)
-							{
-								shadow_ray = Ray(inter,(*light)->location() - inter);
-								std::vector<Object*>::const_iterator occluder;
-								bool is_shadowed = false;
-								for (occluder = scene.objects.begin(); occluder != scene.objects.end(); occluder++)
-								{
-									if ((*occluder)->intersects(shadow_ray) == true && Utility::almost_equals((*occluder)->intersection(shadow_ray), inter) == false)
-									{
-										
-										is_shadowed = true;
-										break;
-									}
-								}
-								if (is_shadowed == false)
-								{
-									//light calculation here
-									Colour temp = (*receiver)->surface_colour(inter, *(*light), scene.scene_camera().location());
-									colour += temp * temp;
-								}
-								else
-								{
-									Colour temp = (*receiver)->shadow_colour(*(*light));
-									base = temp * temp;
-								}
-							}
-						}
-					}
+					t.trace_depth(pixel, *(*receiver), r, base, colour);
 				}
 				//colour aggregation here
 				ray_aggregate_colour	+= colour;
 				ray_aggregate_base		+= base;
-
 			}
 			//pixel colour here
 			image.set_colour_at(pixel, ray_aggregate_colour, ray_aggregate_base, MAX_RAYS);

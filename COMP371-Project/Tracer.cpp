@@ -33,12 +33,12 @@ Tracer::Tracer(const long& ps, const double& sn, const Scene& scn, Image_d& img)
 	material_colour(0.0),
 	lighting_colour(0.0)
 {
-	//intentionally empty
+	image = &img;
 }
-Colour Tracer::trace_colour(const Object& reciever, const Point& intersection)
+void Tracer::trace_colour(const Object& reciever, const Point& intersection, Colour& base, Colour& lighting)
 {
-	Colour colour = Colour(0.0);
-	Colour base = reciever.ambient_colour();
+	lighting = Colour(0.0);
+	base = reciever.ambient_colour();
 	Ray shadow_ray;
 	for (std::vector<Light*>::const_iterator light = scene.lights.begin(); light != scene.lights.end(); light++)
 	{
@@ -50,7 +50,7 @@ Colour Tracer::trace_colour(const Object& reciever, const Point& intersection)
 		{
 			//light calculation here
 			Colour temp = reciever.surface_colour(intersection, *(*light), scene.scene_camera().location());
-			colour += temp * temp;
+			lighting += temp * temp;
 		}
 		else
 		{
@@ -59,7 +59,6 @@ Colour Tracer::trace_colour(const Object& reciever, const Point& intersection)
 			base = temp * temp;
 		}
 	}
-	return colour + base;
 }
 bool Tracer::is_occluded(const Object& reciever, const Ray& shadow_ray, const Point& p) const
 {
@@ -74,15 +73,18 @@ bool Tracer::is_occluded(const Object& reciever, const Ray& shadow_ray, const Po
 	}
 	return ret;
 }
-void Tracer::trace(const Object& reciever, const Ray& r)
+void Tracer::trace_depth(const Point& pixel, const Object& reciever, const Ray& r, Colour& base, Colour& light)
 {
 	//the pixel exists at the end of the ray (which is the focal length)
-	Point pixel = r.cast(scene.scene_camera().f_length());
-	Point inter = reciever.intersection(r);
-	Colour ret;
-	if (inter != (Point) NULL && image->test_depth_at(pixel, glm::distance(inter, scene.scene_camera().location())) == true)
+	
+	if (reciever.intersects(r) == true)
 	{
-		image->set_depth_at(pixel, glm::distance(inter, scene.scene_camera().location()));
-		trace_colour(reciever, inter);
+		Point inter = reciever.intersection(r);
+		if ( image->test_depth_at(pixel, glm::distance(inter, scene.scene_camera().location())) == true)
+		{
+			image->set_depth_at(pixel, glm::distance(inter, scene.scene_camera().location()));
+			trace_colour(reciever, inter, base, light);
+		}		
 	}
+
 }

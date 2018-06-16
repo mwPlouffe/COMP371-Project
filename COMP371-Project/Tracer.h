@@ -12,9 +12,10 @@
 #include "Libraries.h"
 #include "Scene.h"
 #include "Image.h"
+#include "Image.cpp"
 
-#define MAX_RAYS 36
-#define NOISE_RANGE 0.5
+#define MAX_RAYS 1
+#define NOISE_RANGE 0.0
 
 class Tracer
 {
@@ -31,8 +32,8 @@ class Tracer
 	Tracer(const long& ps, const double& sn, const Scene& scn);
 	Tracer(const long& ps, const double& sn, const Scene& scn, Image_d& img);
 	virtual ~Tracer(void) = default;
-	void trace(const Object& reciever, const Ray& r);
-	Colour trace_colour(const Object& reciever, const Point& intersection);
+	void trace_depth(const Point& pixel, const Object& reciever, const Ray& r, Colour& base, Colour& light);
+	void trace_colour(const Object& reciever, const Point& intersection, Colour& base, Colour& light);
 	inline void set_image(Image_d& img)
 	{
 		image = &img;
