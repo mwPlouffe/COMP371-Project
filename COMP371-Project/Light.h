@@ -11,8 +11,11 @@
 
 #include "Entity.h"
 
+//a light that has a position and a colour
+//is a point light
 class Light : public Entity
 {
+	
 	protected:
 	Colour colour;
 	public:

@@ -11,6 +11,7 @@
 
 #include "Object.h"
 
+//the plane object, overrides the intersection and normal function
 class Plane : public Object
 {
 	private:

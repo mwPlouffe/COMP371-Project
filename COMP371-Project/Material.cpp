@@ -37,10 +37,12 @@ Colour Material::calculate_colour(const Vector& view, const Vector& normal, cons
 	Colour spec = pow( std::max(0.0, (double) glm::dot(view, reflection)), this->shininess ) * this->specular;
 
 	//treat the ambient colour as the base colour of the material, ie do not apply lighting effects to it
-	return glm::clamp(this->ambient + (light_colour * GLOBAL_INTENSITY * (diff + spec)), 0.0, 1.0);
+	return glm::clamp((light_colour * GLOBAL_INTENSITY * (this->ambient + diff + spec)), 0.0, 1.0);
 }
 Colour Material::calculate_shadow_colour(const Colour& light_colour) const
 {
-	Colour shadows = 0.8 * (this->ambient * light_colour) + 0.2 * (Colour(0.0, 0.0, 1.0));
-	return glm::clamp(shadows, 0.0, 1.0);
+	//blends the shadow colouring (blue) with the light and material colours to generate better shadows
+	//Colour shadows = 0.99 * (this->ambient * light_colour) + 0.01 * (Colour(0.0, 0.0, 1.0));
+	//return glm::clamp(shadows, 0.0, 1.0);
+	return (this->ambient * light_colour);
 }

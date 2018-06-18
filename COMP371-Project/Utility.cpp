@@ -116,7 +116,7 @@ void Utility::load_entities(std::map<std::string, Entity*>& entities, char* file
 		#ifndef AREA_LIGHTS
 			entities[ss.str()] = new Light(light_colour, position);
 		#else
-			entities[ss.str()] = new AreaLight(light_colour, position, 1.0);
+			entities[ss.str()] = new AreaLight(light_colour, position, RADIUS);
 		#endif
 		}
 		else
@@ -315,3 +315,23 @@ glm::dvec3 Utility::pow(const glm::dvec3& vec, double power)
 	
 	return vec1;
 }
+Colour Utility::simple_average(const Colour& c1, const Colour& c2, int count)
+{
+	Colour ret = c1 + c2;
+	ret /= (double) count;
+	return glm::clamp(ret ,0.0, 1.0);
+}
+Colour Utility::square_average(const Colour& c1, const Colour& c2, int count)
+{
+	Colour ret = c1 + c2;
+	ret /= (double) count;
+	ret.x = sqrt(ret.x);
+	ret.y = sqrt(ret.y);
+	ret.z = sqrt(ret.z);
+	return glm::clamp(ret,0.0,1.0);
+}
+
+
+
+
+

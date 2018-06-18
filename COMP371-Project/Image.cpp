@@ -53,7 +53,7 @@ void Image<T>::set_colour_at(const Point& pixel, const Colour& c)
 template <class T>
 void Image<T>::set_colour_at(const Point& pixel, const Colour& colour, const long& ray_count)
 {
-	Colour pixel_colour = colour /(double) ray_count;
+	Colour pixel_colour = Utility::simple_average(colour, Colour(0.0), ray_count);
 	pixel_colour = glm::clamp(pixel_colour, 0.0, 1.0);
 	this->set_colour_at(pixel, pixel_colour);
 }
@@ -64,12 +64,7 @@ void Image<T>::set_colour_at(const Point& pixel, const Colour& base_colour, cons
 	//https://medium.com/@kevinsimper/how-to-average-rgb-colors-together-6cd3ef1ff1e5
 	//need to take a better average between colours
 	//1. create an unbiased summation between the base and lighting colours, using the number of lights
-	Colour pixel_colour = (lighting_colour + base_colour);
-	//2. now compute the square average of the colours in the pixel
-	pixel_colour /= (ray_count);
-	pixel_colour.r = sqrt(pixel_colour.r);
-	pixel_colour.g = sqrt(pixel_colour.g);
-	pixel_colour.b = sqrt(pixel_colour.b);
+	Colour pixel_colour = Utility::square_average(base_colour, lighting_colour, ray_count);
 	//3. clamp the colour betweeen 0 and 1 (for the gamma correction
 	pixel_colour = glm::clamp(pixel_colour, 0.0, 1.0);
 	
@@ -97,7 +92,7 @@ void Image<T>::save_image_to_file(const std::string& filepath)
 	}
 	catch (CImgException &ex)
 	{
-		std::cout << ex.what() << std::endl;
+		std::cout << "ERROR: "<< ex.what() << std::endl;
 		return;
 	}
 	std::cout << "MESSAGE: Saving Complete" << std::endl;
@@ -147,9 +142,9 @@ void Image<T>::anti_alias(int radius)
 			{
 				for (int y_sample = -1 * radius; y_sample <= radius; y_sample++)
 				{
-					aggregate.r += sampler(x + x_sample, y + y_sample, 0, 0);
-					aggregate.g += sampler(x + x_sample, y + y_sample, 0, 1);
-					aggregate.b += sampler(x + x_sample, y + y_sample, 0, 2);
+					aggregate.r += sampler(x + x_sample, y + y_sample, 0, 0) * sampler(x + x_sample, y + y_sample, 0, 0);
+					aggregate.g += sampler(x + x_sample, y + y_sample, 0, 1) * sampler(x + x_sample, y + y_sample, 0, 1);
+					aggregate.b += sampler(x + x_sample, y + y_sample, 0, 2) * sampler(x + x_sample, y + y_sample, 0, 2);
 				}
 			}
 #ifdef GAMMA 

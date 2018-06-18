@@ -12,6 +12,8 @@
 #include "Object.h"
 #include "Material.h"
 
+
+//the sphere primitive, it overrides the normal and intersection functions
 class Sphere : public Object
 {
 	private:

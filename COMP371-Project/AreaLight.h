@@ -13,7 +13,7 @@
 
 class AreaLight : public Light
 {
-	//assumes that the position inherited from the entity class is the centre of a circle
+	//assumes that the position inherited from the entity class is the centre of a sphere
 	protected:
 	double radius;									//the radius of the sphere
 	public:
@@ -22,6 +22,8 @@ class AreaLight : public Light
 	AreaLight(const Point& p, const Colour& c);
 	AreaLight(const Point& p, const Colour& c, const double& r);
 	virtual ~AreaLight(void) = default;
+	
+	//the sampling function, which returns a point that is guaranteed to be inside the light
 	Point sample(void);
 };
 

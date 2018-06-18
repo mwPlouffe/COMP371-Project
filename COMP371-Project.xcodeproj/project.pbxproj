@@ -21,6 +21,7 @@
 		6ED164B920C5D68A00BA9AB8 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6ED164B820C5D68A00BA9AB8 /* Entity.cpp */; };
 		6ED164BB20C5D75C00BA9AB8 /* Utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6ED164BA20C5D75C00BA9AB8 /* Utility.cpp */; };
 		6ED164BD20C5E40400BA9AB8 /* Material.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6ED164BC20C5E40400BA9AB8 /* Material.cpp */; };
+		6EDE03F620D5EE8D00F7FDC6 /* ColourMixer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6EDE03F520D5EE8D00F7FDC6 /* ColourMixer.cpp */; };
 		6EFDFD3820D230DD00D23A33 /* Tracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6EFDFD3720D230DD00D23A33 /* Tracer.cpp */; };
 /* End PBXBuildFile section */
 
@@ -77,6 +78,8 @@
 		6ED164B820C5D68A00BA9AB8 /* Entity.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Entity.cpp; sourceTree = "<group>"; };
 		6ED164BA20C5D75C00BA9AB8 /* Utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utility.cpp; sourceTree = "<group>"; };
 		6ED164BC20C5E40400BA9AB8 /* Material.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Material.cpp; sourceTree = "<group>"; };
+		6EDE03F420D5E8EE00F7FDC6 /* ColourMixer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ColourMixer.h; sourceTree = "<group>"; };
+		6EDE03F520D5EE8D00F7FDC6 /* ColourMixer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ColourMixer.cpp; sourceTree = "<group>"; };
 		6EFDFD3620D2182200D23A33 /* Tracer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tracer.h; sourceTree = "<group>"; };
 		6EFDFD3720D230DD00D23A33 /* Tracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tracer.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -97,10 +100,8 @@
 			children = (
 				6E8DDE0820C75B0A001DECE4 /* exceptions */,
 				6E2EEBAE20C0D3BC00CA93F6 /* Utility.h */,
-				6E2EEBA720C0CD8F00CA93F6 /* Material.h */,
-				6E21466220CDCB03000F5973 /* Image.h */,
-				6E21466520CDD7D3000F5973 /* Scene.h */,
-				6EFDFD3620D2182200D23A33 /* Tracer.h */,
+				6EDE03F420D5E8EE00F7FDC6 /* ColourMixer.h */,
+				6EDE03F220D5E8A300F7FDC6 /* functional */,
 			);
 			name = utility;
 			sourceTree = "<group>";
@@ -109,11 +110,10 @@
 			isa = PBXGroup;
 			children = (
 				6E7FD53020C5BE8D00D04C20 /* Entity.h */,
-				6ED164AE20C5D47900BA9AB8 /* objects */,
 				6E2EEBAC20C0D0F900CA93F6 /* Ray.h */,
-				6E2EEBAF20C0D41000CA93F6 /* Light.h */,
-				6E7053B420CB969C00D9314D /* AreaLight.h */,
 				6E7FD53120C5C1C900D04C20 /* Camera.h */,
+				6ED164AE20C5D47900BA9AB8 /* objects */,
+				6EDE03F120D5E89700F7FDC6 /* lights */,
 			);
 			name = entities;
 			sourceTree = "<group>";
@@ -141,11 +141,10 @@
 			isa = PBXGroup;
 			children = (
 				6ED164B820C5D68A00BA9AB8 /* Entity.cpp */,
-				6ED164B120C5D53100BA9AB8 /* objects */,
-				6ED164B220C5D54D00BA9AB8 /* Ray.cpp */,
-				6E7053B520CB98F500D9314D /* AreaLight.cpp */,
-				6ED164B420C5D55D00BA9AB8 /* Light.cpp */,
 				6ED164B620C5D56F00BA9AB8 /* Camera.cpp */,
+				6ED164B220C5D54D00BA9AB8 /* Ray.cpp */,
+				6ED164B120C5D53100BA9AB8 /* objects */,
+				6EDE03F020D5E88800F7FDC6 /* lights */,
 			);
 			name = entities;
 			sourceTree = "<group>";
@@ -155,10 +154,8 @@
 			children = (
 				6E8DDE0A20C75C36001DECE4 /* exceptions */,
 				6ED164BA20C5D75C00BA9AB8 /* Utility.cpp */,
-				6ED164BC20C5E40400BA9AB8 /* Material.cpp */,
-				6E21466320CDCD84000F5973 /* Image.cpp */,
-				6E21466620CDE042000F5973 /* Scene.cpp */,
-				6EFDFD3720D230DD00D23A33 /* Tracer.cpp */,
+				6EDE03F520D5EE8D00F7FDC6 /* ColourMixer.cpp */,
+				6EDE03F320D5E8B000F7FDC6 /* functional */,
 			);
 			name = utillty;
 			sourceTree = "<group>";
@@ -244,6 +241,46 @@
 			name = objects;
 			sourceTree = "<group>";
 		};
+		6EDE03F020D5E88800F7FDC6 /* lights */ = {
+			isa = PBXGroup;
+			children = (
+				6E7053B520CB98F500D9314D /* AreaLight.cpp */,
+				6ED164B420C5D55D00BA9AB8 /* Light.cpp */,
+			);
+			name = lights;
+			sourceTree = "<group>";
+		};
+		6EDE03F120D5E89700F7FDC6 /* lights */ = {
+			isa = PBXGroup;
+			children = (
+				6E2EEBAF20C0D41000CA93F6 /* Light.h */,
+				6E7053B420CB969C00D9314D /* AreaLight.h */,
+			);
+			name = lights;
+			sourceTree = "<group>";
+		};
+		6EDE03F220D5E8A300F7FDC6 /* functional */ = {
+			isa = PBXGroup;
+			children = (
+				6E2EEBA720C0CD8F00CA93F6 /* Material.h */,
+				6E21466220CDCB03000F5973 /* Image.h */,
+				6E21466520CDD7D3000F5973 /* Scene.h */,
+				6EFDFD3620D2182200D23A33 /* Tracer.h */,
+			);
+			name = functional;
+			sourceTree = "<group>";
+		};
+		6EDE03F320D5E8B000F7FDC6 /* functional */ = {
+			isa = PBXGroup;
+			children = (
+				6ED164BC20C5E40400BA9AB8 /* Material.cpp */,
+				6E21466320CDCD84000F5973 /* Image.cpp */,
+				6E21466620CDE042000F5973 /* Scene.cpp */,
+				6EFDFD3720D230DD00D23A33 /* Tracer.cpp */,
+			);
+			name = functional;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -309,6 +346,7 @@
 				6ED164B720C5D56F00BA9AB8 /* Camera.cpp in Sources */,
 				6E67B72E20C0F5BD0001CCCF /* Sphere.cpp in Sources */,
 				6ED164B320C5D54D00BA9AB8 /* Ray.cpp in Sources */,
+				6EDE03F620D5EE8D00F7FDC6 /* ColourMixer.cpp in Sources */,
 				6E21466720CDE042000F5973 /* Scene.cpp in Sources */,
 				6E8DDE0C20C75C46001DECE4 /* IOException.cpp in Sources */,
 				6ED164B020C5D48D00BA9AB8 /* Object.cpp in Sources */,

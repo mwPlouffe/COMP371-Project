@@ -50,17 +50,10 @@ void Scene::parse_entities(std::map<std::string, Entity*> entities)
 		//if there is data still in the pointer, it is a light
 		if (dynamic_cast<Light*>(entity->second) !=  NULL)
 		{
-#ifndef AREA_LIGHTS
+
 			lights.push_back(dynamic_cast<Light*>(entity->second));
 			//cannot be a light and an object, start next iteration
 			continue;
-#else
-			std::vector<Light*> transfer = dynamic_cast<AreaLight*>(entity->second)->return_lights();
-			for (int i = 0; i < transfer.size(); i++)
-			{
-				lights.push_back(transfer[i]);
-			}
-#endif
 		}
 	}
 	std::cout << "--------------------------" << std::endl;

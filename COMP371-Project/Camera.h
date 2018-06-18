@@ -50,14 +50,6 @@ class Camera : public Entity
 	{
 		return focal_length;
 	}
-	inline double fov(void)
-	{
-		return field_of_view;
-	}
-	inline double asp_ratio(void)
-	{
-		return aspect_ratio;
-	}
 };
 
 #endif /* Camera_h */

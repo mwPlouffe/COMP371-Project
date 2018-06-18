@@ -15,13 +15,8 @@
 #include "Scene.h"
 #include "Tracer.h"
 
-#define cimg_display 0
-
-#define THREAD_MAX 1
-//#define MAX_RAYS 100
+#define THREAD_MAX 24
 //#define SAMPLE_RADIUS 1
-#define NOISE_RANGE 0.0
-
 #include <thread>
 #include <mutex>
 

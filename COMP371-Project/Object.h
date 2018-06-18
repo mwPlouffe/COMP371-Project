@@ -12,6 +12,7 @@
 #include "Entity.h"
 #include "Ray.h"
 #include "Material.h"
+#include "ColourMixer.h"
 #include "Light.h"
 
 //#define cached

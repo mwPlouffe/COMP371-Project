@@ -12,7 +12,13 @@
 #include "Libraries.h"
 #include "Light.h"
 
-#define GLOBAL_INTENSITY 3.0
+#ifdef TRACER_UNIFORM
+#define GLOBAL_INTENSITY 1.0
+#elif defined(TRACER_RANDOM)
+#define GLOBAL_INTENSITY 1.0
+#else
+#define GLOBAL_INTENSITY 1.0
+#endif
 
 class Material
 {
@@ -26,7 +32,11 @@ class Material
 	public:
 	Material(void);
 	Material(Colour ambi, Colour diff, Colour spec, float shiny);
+	
+	//calculate the colour based on the lighting
 	Colour calculate_colour(const Vector& view, const Vector& normal, const Vector& light_direction, const Colour& light_colour) const;
+	
+	//calculate the colour based on the
 	Colour calculate_shadow_colour(const Colour& light_colour) const;
 	inline std::string to_string(void)
 	{

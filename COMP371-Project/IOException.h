@@ -12,6 +12,8 @@
 #include <exception>
 #include <string>
 
+//simple IO exception class for use when doing file IO
+
 class IOException : public std::exception
 {
 	protected:
